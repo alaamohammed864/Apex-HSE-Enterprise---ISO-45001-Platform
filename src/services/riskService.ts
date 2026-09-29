@@ -839,7 +839,8 @@ class RiskService {
 
   public async deleteRiskAssessment(id: string): Promise<boolean> {
     await this.init();
-    return indexedDbService.delete('risk_assessments', id);
+    await indexedDbService.delete('risk_assessments', id);
+    return true;
   }
 
   // --- HAZARDS CRUD ---

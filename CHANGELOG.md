@@ -2,7 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-09-29 — Phase 5: HSE Risk Management & 5x5 ALARP Engine
+### Added
+- **Complete Operational Risk Management Module (`src/components/risk/`)**:
+  - `RiskManagementModule.tsx`: Unified interface featuring Risk Register, Hazard Register, Control Measures, and 5x5 Matrix Configuration tabs.
+  - `RiskMatrixInteractiveGrid.tsx`: Dynamic 5x5 matrix showing score coordinates (1 to 25), cell distribution counters, and bidirectional cell-click filtering between Initial Inherent Risk and Residual ALARP Risk.
+  - `HazardRegisterView.tsx`: Standalone Hazard catalogue supporting category filtering (8 categories), search, and full CRUD (Create, Edit, Duplicate, Archive).
+  - `ControlMeasuresView.tsx`: Hierarchy of Controls register (Elimination, Substitution, Engineering, Administrative, PPE) with effectiveness tracking and verification methods.
+  - `RiskAssessmentEditorModal.tsx`: Comprehensive modal for creating, editing, viewing, and duplicating risk assessments with all 16 required fields.
+  - `MatrixConfigModal.tsx`: Administrator configuration modal for Likelihood levels (1-5), Severity levels (1-5), Risk Tiers, Thresholds, and custom colors.
+  - `RiskDossierPrintModal.tsx`: ISO 45001 compliant printable dossier with assessment details, barrier evaluation, and sign-off blocks.
+- **Risk Assessment Entity & All 16 Mandatory Fields (`src/types/risk.ts`, `src/services/riskService.ts`)**:
+  - Activity, Task, Hazard, Potential Consequence, Existing Controls, Likelihood (1-5), Severity (1-5), Initial Risk Score & Tier, Additional Controls, Responsible Person, Target Date, Residual Likelihood (1-5), Residual Severity (1-5), Residual Risk Score & Tier, ALARP Justification, and Status.
+- **Configurable 5x5 Risk Matrix Calculation**:
+  - Formula: `Risk Score = Likelihood × Severity` (bounds 1 to 25).
+  - Real-time quantitative risk reduction percentage calculation.
+  - Multi-store persistence to IndexedDB (`hazards`, `control_measures`, `risk_assessments`) with zero reliance on static mock data.
+- **Cross-Module Linkage Engine (`src/services/linkableEntitiesService.ts`)**:
+  - Seamless foreign key reference linking to Projects, Controlled Documents, SOPs, Permits to Work (e-PTW), Workplace Incidents, and Audit Findings.
+- **Export & Reporting Service Expansion (`src/services/exportService.ts`)**:
+  - `exportCompleteRiskRegisterToCsv`: Structured CSV export covering all 16 fields and cross-module linkages.
+  - `exportRiskRegisterToJson`: Complete JSON payload export for external API integration.
+- **Automated Verification**:
+  - Executed `scripts/testPhase5RiskManagement.ts` with 100% pass rate.
+- **Documentation Updated**:
+  - Updated `PROJECT_STATUS.md`, `DATABASE_SCHEMA.md`, `AI_MEMORY.md`, `NEXT_TASK.md`, and `CHANGELOG.md`.
+
 ## [1.5.0] - 2026-09-28 — Phase 4: HSE Plan, Procedures, and SOP Modules
+
 ### Added
 - **10 Mandatory Professional HSE Templates (`src/data/templates/`)**:
   - `TMPL-HSE-PLN`: Site Master HSE Plan featuring all 33 standardized ISO 45001:2018 sections (Document Control, Project Information, Scope, HSE Policy, HSE Objectives, Legal Requirements, Standards, Roles & Responsibilities, Organization, Risk Management, Hazard Identification, Risk Assessment, Permit to Work, Emergency Response, Fire Safety, Environmental Management, Traffic Management, Lifting, Working at Height, Confined Space, Electrical Safety, Excavation, Chemical Safety, PPE, Training, Inspections, Audits, Incident Reporting, Corrective Actions, KPIs, Communication, Document Control & Retention, Appendices).

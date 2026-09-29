@@ -51,3 +51,24 @@
    - No static image rasterization or destructive flattening.
 4. **Automated Verification**:
    - Validated with dedicated automated test suite `scripts/testPhase4Templates.ts` with 100% pass rate.
+
+## Phase 5: HSE Risk Management & 5x5 ALARP Engine — Architectural Decisions
+1. **Configurable 5x5 Risk Matrix Architecture (`src/services/riskService.ts`, `src/types/risk.ts`)**:
+   - Discrete quantitative mathematical formula: `Risk Score = Likelihood × Severity` (bounds 1 to 25).
+   - Fully customizable likelihood levels 1-5 (names, Arabic names, frequency probability).
+   - Fully customizable severity levels 1-5 (names, Arabic names, safety impact).
+   - Administrator-configurable risk tier thresholds and custom hex color codes.
+   - Interactive 5x5 grid with cell-click bidirectional filtering and Initial vs Residual toggles.
+2. **Hazard Register & Hierarchy of Controls**:
+   - Standalone `hazards` store categorized across 8 physical, chemical, and environmental groups.
+   - Pre-seeded industrial hazard catalogue with standard reference mappings (OSHA 1926.501, ISO 45001 §6.1.2).
+   - Control Measures register implementing the 5-tier Hierarchy of Controls (Elimination, Substitution, Engineering, Administrative, PPE) with effectiveness ratings.
+3. **Comprehensive Risk Assessment Entity (16 Core Fields)**:
+   - Full support for Activity, Task, Hazard, Potential Consequence, Existing Controls, Likelihood, Severity, Initial Risk, Additional Controls, Responsible Person, Target Date, Residual Likelihood, Residual Severity, Residual Risk, ALARP Justification, and Status.
+   - Cross-module linkage engine linking Risk Assessments to Projects, Controlled Documents, SOPs, Permits (e-PTW), Incidents, and Audits.
+4. **Offline-First Persistence & Export**:
+   - Direct IndexedDB persistence via `hazards`, `control_measures`, and `risk_assessments` stores with in-memory fallback.
+   - Complete tabular CSV export, machine-readable JSON export, and ISO 45001 formatted printable dossier.
+5. **Automated Verification**:
+   - End-to-end test script `scripts/testPhase5RiskManagement.ts` passed 100% covering all CRUD, calculation, admin configuration, linking, and persistence workflows.
+

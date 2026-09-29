@@ -379,5 +379,90 @@ Every field configured inside a template section supports:
 
 ---
 
-## 5. Other Operational Entities
-(Covering Hazards, Controls, Risk Assessments, Incidents, CAPA, Inspections, Training Matrix, KPIs, e-PTW, Audits, Emergency Plans, HSE Budget, Notifications, and Audit Logs as defined in Phase 1).
+## 5. Risk Management & ALARP Schema (Phase 5)
+
+### Table: `hazards`
+- `id`: VARCHAR(50) (Primary Key, e.g. `HAZ-001`, `HAZ-622`)
+- `code`: VARCHAR(50) UNIQUE NOT NULL (e.g. `HAZ-PHYS-01`, `HAZ-CHEM-03`)
+- `category`: VARCHAR(50) NOT NULL ('PHYSICAL', 'CHEMICAL', 'BIOLOGICAL', 'ERGONOMIC', 'PSYCHOSOCIAL', 'ELECTRICAL', 'MECHANICAL', 'ENVIRONMENTAL')
+- `title`: VARCHAR(255) NOT NULL
+- `title_ar`: VARCHAR(255)
+- `description`: TEXT NOT NULL
+- `potential_consequences`: JSONB NOT NULL (Array of string consequence descriptions)
+- `standard_reference`: VARCHAR(150) (e.g. `OSHA 1926.501 / ISO 45001 §8.1.2`)
+- `status`: VARCHAR(20) DEFAULT 'ACTIVE' ('ACTIVE', 'ARCHIVED')
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `control_measures`
+- `id`: VARCHAR(50) (Primary Key, e.g. `CTRL-001`, `CTRL-ENG-01`)
+- `code`: VARCHAR(50) UNIQUE NOT NULL (e.g. `CTRL-ENG-01`, `CTRL-PPE-05`)
+- `hierarchy_level`: VARCHAR(30) NOT NULL ('ELIMINATION', 'SUBSTITUTION', 'ENGINEERING', 'ADMINISTRATIVE', 'PPE')
+- `title`: VARCHAR(255) NOT NULL
+- `title_ar`: VARCHAR(255)
+- `description`: TEXT NOT NULL
+- `verification_method`: TEXT NOT NULL
+- `typical_effectiveness`: INT NOT NULL (Percentage 0-100%)
+- `status`: VARCHAR(20) DEFAULT 'ACTIVE' ('ACTIVE', 'ARCHIVED')
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `risk_assessments`
+- `id`: VARCHAR(50) (Primary Key, e.g. `RA-2026-042`)
+- `rev`: VARCHAR(20) DEFAULT 'REV-01'
+- `activity`: VARCHAR(255) NOT NULL
+- `task`: TEXT NOT NULL
+- `hazard`: TEXT NOT NULL
+- `hazard_id`: VARCHAR(50) REFERENCES `hazards`(`id`)
+- `potential_consequence`: TEXT NOT NULL
+- `existing_controls`: TEXT NOT NULL
+- `likelihood`: INT NOT NULL (1 to 5)
+- `severity`: INT NOT NULL (1 to 5)
+- `initial_risk_score`: INT NOT NULL (likelihood × severity, 1-25)
+- `initial_risk_tier`: VARCHAR(30) NOT NULL ('LOW', 'MEDIUM', 'HIGH', 'EXTREME')
+- `additional_controls`: TEXT NOT NULL
+- `responsible_person`: VARCHAR(150) NOT NULL
+- `target_date`: DATE NOT NULL
+- `residual_likelihood`: INT NOT NULL (1 to 5)
+- `residual_severity`: INT NOT NULL (1 to 5)
+- `residual_risk_score`: INT NOT NULL (residual_likelihood × residual_severity, 1-25)
+- `residual_risk_tier`: VARCHAR(30) NOT NULL ('LOW', 'MEDIUM', 'HIGH', 'EXTREME')
+- `alarp_justification`: TEXT NOT NULL
+- `status`: VARCHAR(30) DEFAULT 'IN_REVIEW' ('DRAFT', 'IN_REVIEW', 'CONTROLLED', 'ACTION_REQUIRED', 'ARCHIVED')
+- `hierarchy_of_controls`: JSONB NOT NULL (`{ elimination: boolean, substitution: boolean, engineering: boolean, administrative: boolean, ppe: boolean }`)
+- `linked_project_id`: VARCHAR(50) REFERENCES `projects`(`id`)
+- `linked_project_name`: VARCHAR(255)
+- `linked_document_id`: VARCHAR(50) REFERENCES `document_instances`(`id`)
+- `linked_document_code`: VARCHAR(50)
+- `linked_sop_id`: VARCHAR(50) REFERENCES `document_instances`(`id`)
+- `linked_sop_code`: VARCHAR(50)
+- `linked_permit_id`: VARCHAR(50) REFERENCES `permits_to_work`(`id`)
+- `linked_permit_number`: VARCHAR(50)
+- `linked_incident_id`: VARCHAR(50) REFERENCES `incident_records`(`id`)
+- `linked_incident_ref`: VARCHAR(50)
+- `linked_audit_id`: VARCHAR(50) REFERENCES `audit_findings`(`id`)
+- `linked_audit_ref`: VARCHAR(50)
+- `discipline`: VARCHAR(50)
+- `discipline_label`: VARCHAR(100)
+- `zone`: VARCHAR(100)
+- `reviewer_name`: VARCHAR(100)
+- `reviewer_role`: VARCHAR(100)
+- `signoff_date`: DATE
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Config Entity: `risk_matrix_config`
+- `id`: VARCHAR(50) ('DEFAULT_5X5_MATRIX')
+- `name`: VARCHAR(255)
+- `name_ar`: VARCHAR(255)
+- `likelihood_levels`: Array of 5 objects (`level`, `code`, `name`, `nameAr`, `description`, `frequency`)
+- `severity_levels`: Array of 5 objects (`level`, `code`, `name`, `nameAr`, `description`, `safetyImpact`)
+- `risk_tiers`: Array of 4 objects (`id`, `name`, `nameAr`, `minScore`, `maxScore`, `color`, `textColor`, `bgClass`, `borderClass`, `textClass`, `actionRequired`, `actionRequiredAr`)
+- `updated_at`: TIMESTAMP WITH TIME ZONE
+- `updated_by`: VARCHAR(100)
+
+---
+
+## 6. Other Operational Entities
+(Covering Incidents, CAPA, Inspections, Training Matrix, KPIs, e-PTW, Audits, Emergency Plans, HSE Budget, Notifications, and Audit Logs as defined in Phase 1).
+

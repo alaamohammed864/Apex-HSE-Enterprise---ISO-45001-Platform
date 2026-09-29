@@ -197,3 +197,4 @@ class IndexedDbService {
 }
 
 export const dbService = new IndexedDbService();
+export const indexedDbService = dbService;

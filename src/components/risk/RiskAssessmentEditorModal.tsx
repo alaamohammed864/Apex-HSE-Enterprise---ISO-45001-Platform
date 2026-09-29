@@ -103,8 +103,8 @@ export const RiskAssessmentEditorModal: React.FC<RiskAssessmentEditorModalProps>
         assessment.existingControls ||
           ((assessment as any).baselineControls ? (assessment as any).baselineControls.join('; ') : '')
       );
-      setLikelihood(assessment.likelihood || assessment.initialLikelihood || 4);
-      setSeverity(assessment.severity || assessment.initialSeverity || 4);
+      setLikelihood(assessment.likelihood || (assessment as any).initialLikelihood || 4);
+      setSeverity(assessment.severity || (assessment as any).initialSeverity || 4);
       setAdditionalControls(
         assessment.additionalControls || (assessment as any).additionalMitigation || ''
       );

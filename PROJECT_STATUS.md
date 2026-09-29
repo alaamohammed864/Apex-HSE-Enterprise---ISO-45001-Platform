@@ -157,3 +157,57 @@
     - In-place editing and multi-field value updates verified.
     - 100% data persistence verified across reload cycles.
 
+## Phase 5 — HSE Risk Management & 5x5 ALARP Engine: COMPLETE
+- [x] **Hazard Register Module (`src/components/risk/HazardRegisterView.tsx`)**:
+  - Pre-seeded catalogue across 8 physical and chemical categories.
+  - Complete CRUD: Create, Edit, View, Duplicate, Archive.
+  - Search, Category Filter, and standard compliance references (OSHA 1926 / ISO 45001 §6.1.2).
+- [x] **Control Measures & Hierarchy of Controls (`src/components/risk/ControlMeasuresView.tsx`)**:
+  - Strict alignment with 5 levels: Elimination, Substitution, Engineering, Administrative, PPE.
+  - Verification methods, effectiveness percentages (10-100%), and active status.
+  - Create, Edit, Archive, and filter by hierarchy level.
+- [x] **Complete Risk Assessment Records (`src/types/risk.ts`, `src/services/riskService.ts`)**:
+  - All 16 mandatory fields implemented and validated:
+    1. Activity
+    2. Task
+    3. Hazard
+    4. Potential Consequence
+    5. Existing Controls
+    6. Likelihood (1-5)
+    7. Severity (1-5)
+    8. Initial Risk (Likelihood × Severity, badge, tier)
+    9. Additional Controls (Hierarchy checklist + description)
+    10. Responsible Person
+    11. Target Date
+    12. Residual Likelihood (1-5)
+    13. Residual Severity (1-5)
+    14. Residual Risk (Residual Likelihood × Residual Severity, tier, % reduction)
+    15. ALARP Justification
+    16. Status (DRAFT, IN_REVIEW, CONTROLLED, ACTION_REQUIRED, ARCHIVED)
+- [x] **Configurable 5x5 Risk Matrix (`src/components/risk/RiskMatrixInteractiveGrid.tsx`, `MatrixConfigModal.tsx`)**:
+  - Real-time score calculation (Likelihood × Severity = 1 to 25).
+  - Admin modal allowing full configuration of:
+    - Likelihood levels (names EN/AR, frequency description for 1 to 5)
+    - Severity levels (names EN/AR, safety impact description for 1 to 5)
+    - Risk levels & thresholds (min/max bounds for Low, Medium, High, Extreme)
+    - Risk colors (custom hex codes and color pickers)
+  - Interactive grid filtering: clicking any matrix cell filters the table by exact probability × impact coordinates.
+  - Toggle between Initial Inherent Risk view and Residual ALARP Risk view with live count badges.
+- [x] **Cross-Module Linkage Engine (`src/services/linkableEntitiesService.ts`)**:
+  - Direct relational links from Risk Assessments to:
+    - Projects
+    - Controlled Documents
+    - SOPs
+    - Permits to Work (e-PTW)
+    - Workplace Incidents
+    - HSE Audits & NCR Findings
+- [x] **Export & Print Capabilities (`src/services/exportService.ts`, `src/components/risk/RiskDossierPrintModal.tsx`)**:
+  - Export Complete Risk Register to CSV with all fields and links.
+  - Export structured JSON for external data integration.
+  - In-app ISO 45001 Printable Dossier with title block, risk matrix evaluation table, and signature blocks.
+- [x] **Database Persistence**:
+  - All hazards, control measures, risk assessments, and matrix configs persisted in IndexedDB multi-store database.
+- [x] **Automated Verification**:
+  - `scripts/testPhase5RiskManagement.ts` executed with 100% pass rate.
+
+
