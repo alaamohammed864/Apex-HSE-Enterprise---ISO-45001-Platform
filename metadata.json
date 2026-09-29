@@ -1,0 +1,6 @@
+{
+  "name": "Apex HSE Enterprise - ISO 45001 Platform",
+  "description": "Enterprise ISO 45001:2018 Operational Safety, ALARP Risk Management, PTW Board, Dynamic Form Builder, and Controlled Document Library.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

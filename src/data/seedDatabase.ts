@@ -1,0 +1,275 @@
+/**
+ * In-Memory & Persistent Enterprise Seed Data for Phase 1
+ * Conforms to ISO 45001 Enterprise Structure
+ */
+
+import {
+  Organization,
+  Project,
+  Site,
+  Department,
+  Employee,
+  Contractor,
+  UserEntity,
+  Role,
+  Permission,
+  DocumentTemplate,
+  DocumentInstance,
+  Hazard,
+  ControlMeasure,
+  IncidentRecord,
+  InspectionTemplate,
+  TrainingCourse,
+  KPIDefinition,
+  PermitType,
+  AuditTemplate,
+  EmergencyPlan,
+  EmergencyContact,
+  HSEBudgetItem,
+} from '../types/database';
+
+export const SEED_ORGANIZATIONS: Organization[] = [
+  {
+    id: 'org-ccc-01',
+    name: 'Consolidated Contractors Company (CCC)',
+    nameAr: 'شركة المقاولون المتحدون',
+    code: 'CCC-QATAR',
+    registrationNumber: 'CR-104928-QA',
+    industry: 'Oil, Gas & Petrochemical Infrastructure',
+    country: 'Qatar',
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  },
+];
+
+export const SEED_PROJECTS: Project[] = [
+  {
+    id: 'prj-rl-epc4',
+    organizationId: 'org-ccc-01',
+    code: 'RL-EPC-4',
+    name: 'Ras Laffan North Field Expansion LNG EPC-4',
+    nameAr: 'مشروع توسعة حقل الشمال للغاز المسال - حزمة 4',
+    clientName: 'QatarEnergy LNG / Chiyoda Technip JV',
+    startDate: '2023-06-01T00:00:00Z',
+    targetCompletionDate: '2027-12-31T00:00:00Z',
+    status: 'ACTIVE',
+    createdAt: '2023-05-15T00:00:00Z',
+    updatedAt: '2026-09-28T00:00:00Z',
+  },
+  {
+    id: 'prj-ms-ref3',
+    organizationId: 'org-ccc-01',
+    code: 'MS-REF-3',
+    name: 'Mesaieed Refinery Clean Fuels Unit 3',
+    nameAr: 'مصفاة مسيعيد - وحدة الوقود النظيف 3',
+    clientName: 'Qatar Petroleum Refining',
+    startDate: '2024-01-15T00:00:00Z',
+    targetCompletionDate: '2026-11-30T00:00:00Z',
+    status: 'ACTIVE',
+    createdAt: '2023-11-20T00:00:00Z',
+    updatedAt: '2026-09-28T00:00:00Z',
+  },
+];
+
+export const SEED_SITES: Site[] = [
+  {
+    id: 'site-rl-01',
+    projectId: 'prj-rl-epc4',
+    code: 'SITE-RL-LNG-01',
+    name: 'Process Train 7 & 8 Megamodule Area',
+    nameAr: 'منطقة وحدات المعالجة 7 و 8',
+    location: 'Ras Laffan Industrial City, Plot N-4',
+    latitude: 25.9082,
+    longitude: 51.5284,
+    status: 'OPERATIONAL',
+    createdAt: '2023-06-01T00:00:00Z',
+    updatedAt: '2026-09-28T00:00:00Z',
+  },
+  {
+    id: 'site-rl-02',
+    projectId: 'prj-rl-epc4',
+    code: 'SITE-RL-JETTY-02',
+    name: 'LNG Marine Berth & Cryogenic Loading Line',
+    nameAr: 'رصيف الشحن البحري وخطوط التبريد العميق',
+    location: 'Ras Laffan Marine Terminal',
+    latitude: 25.925,
+    longitude: 51.56,
+    status: 'OPERATIONAL',
+    createdAt: '2023-07-01T00:00:00Z',
+    updatedAt: '2026-09-28T00:00:00Z',
+  },
+];
+
+export const SEED_DEPARTMENTS: Department[] = [
+  {
+    id: 'dept-hse',
+    organizationId: 'org-ccc-01',
+    code: 'HSE-CORP',
+    name: 'Health, Safety & Environmental Division',
+    nameAr: 'إدارة السلامة والصحة المهنية والبيئة',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  },
+  {
+    id: 'dept-qaqc',
+    organizationId: 'org-ccc-01',
+    code: 'QAQC-CORP',
+    name: 'Quality Assurance & Quality Control',
+    nameAr: 'إدارة توكيد وضبط الجودة',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  },
+  {
+    id: 'dept-constr',
+    organizationId: 'org-ccc-01',
+    code: 'CONST-OPS',
+    name: 'Construction & Rigging Operations',
+    nameAr: 'إدارة الإنشاءات والرفع الثقيل',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  },
+];
+
+export const SEED_EMPLOYEES: Employee[] = [
+  {
+    id: 'emp-001',
+    employeeNumber: 'EMP-9001',
+    firstName: 'Tariq',
+    lastName: 'Al-Hashimi',
+    fullNameAr: 'د. طارق الهاشمي',
+    email: 'tariq.hashimi@ccc-jv.qa',
+    phone: '+974 4499 1001',
+    departmentId: 'dept-hse',
+    projectId: 'prj-rl-epc4',
+    jobTitle: 'Corporate HSE Director',
+    jobTitleAr: 'مدير عام السلامة والصحة المهنية',
+    hireDate: '2015-03-01',
+    isSafetyCriticalRole: true,
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2026-09-28T00:00:00Z',
+  },
+  {
+    id: 'emp-002',
+    employeeNumber: 'EMP-9002',
+    firstName: 'Sarah',
+    lastName: 'Jenkins',
+    fullNameAr: 'سارة جينكينز',
+    email: 'sarah.jenkins@ccc-jv.qa',
+    phone: '+974 4499 1002',
+    departmentId: 'dept-qaqc',
+    projectId: 'prj-rl-epc4',
+    jobTitle: 'Lead ISO 45001 Auditor',
+    jobTitleAr: 'مدقق رئيسي معتمد',
+    hireDate: '2019-08-15',
+    isSafetyCriticalRole: true,
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2026-09-28T00:00:00Z',
+  },
+];
+
+export const SEED_ROLES: Role[] = [
+  {
+    id: 'role-hse-dir',
+    code: 'HSE_DIRECTOR',
+    name: 'Corporate HSE Director',
+    nameAr: 'مدير عام السلامة والصحة المهنية',
+    description: 'Ultimate sign-off authority for safety policies, emergency shutdowns, and WORM audits.',
+    isSystemDefault: true,
+    createdAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'role-auditor',
+    code: 'LEAD_AUDITOR',
+    name: 'Lead ISO 45001 Auditor',
+    nameAr: 'مدقق رئيسي ISO 45001',
+    description: 'Assurance of compliance, non-conformance management, and statutory record verification.',
+    isSystemDefault: true,
+    createdAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'role-safety-eng',
+    code: 'SAFETY_ENGINEER',
+    name: 'Lead Safety & Risk Engineer',
+    nameAr: 'مهندس أول سلامة وإدارة مخاطر',
+    description: '5x5 ALARP assessments, e-PTW approval, atmospheric gas interlocks, and JSA development.',
+    isSystemDefault: true,
+    createdAt: '2024-01-01T00:00:00Z',
+  },
+];
+
+export const SEED_PERMITS_TYPES: PermitType[] = [
+  {
+    id: 'pt-hot',
+    code: 'HOT_WORK',
+    name: 'Hot Work & Open Flame Permit',
+    nameAr: 'تصريح أعمال ساخنة ولهب مكشوف',
+    colorBadge: 'bg-red-500 text-white',
+    requiresGasTesting: true,
+    requiresRescueTeam: false,
+  },
+  {
+    id: 'pt-confined',
+    code: 'CONFINED_SPACE',
+    name: 'Confined Space Entry Permit',
+    nameAr: 'تصريح دخول الأماكن المغلقة',
+    colorBadge: 'bg-amber-600 text-white',
+    requiresGasTesting: true,
+    requiresRescueTeam: true,
+  },
+  {
+    id: 'pt-height',
+    code: 'WORK_AT_HEIGHT',
+    name: 'Critical Working at Height (>1.8m)',
+    nameAr: 'تصريح العمل على الارتفاعات',
+    colorBadge: 'bg-blue-600 text-white',
+    requiresGasTesting: false,
+    requiresRescueTeam: true,
+  },
+];
+
+export const SEED_KPIS: KPIDefinition[] = [
+  {
+    id: 'kpi-trifr',
+    code: 'TRIFR',
+    name: 'Total Recordable Incident Frequency Rate',
+    nameAr: 'معدل تكرار الحوادث المسجلة الإجمالي',
+    category: 'LAGGING',
+    calculationFormula: '(Total Recordable Incidents * 1,000,000) / Man-Hours Worked',
+    targetThreshold: 0.15,
+    unit: 'Per 1M Hrs',
+  },
+  {
+    id: 'kpi-ltir',
+    code: 'LTIR',
+    name: 'Lost Time Incident Rate',
+    nameAr: 'معدل حوادث هدر الوقت',
+    category: 'LAGGING',
+    calculationFormula: '(LTI * 1,000,000) / Man-Hours Worked',
+    targetThreshold: 0.0,
+    unit: 'Per 1M Hrs',
+  },
+];
+
+export const SEED_EMERGENCY_CONTACTS: EmergencyContact[] = [
+  {
+    id: 'ec-01',
+    projectId: 'prj-rl-epc4',
+    roleName: 'INCIDENT_COMMANDER',
+    contactPerson: 'Dr. Tariq Al-Hashimi',
+    phonePrimary: '+974 4499 1001',
+    phoneSecondary: '+974 5512 8841',
+    isAvailable24_7: true,
+  },
+  {
+    id: 'ec-02',
+    projectId: 'prj-rl-epc4',
+    roleName: 'LOCAL_CIVIL_DEFENSE',
+    contactPerson: 'Ras Laffan Emergency Operations Center (EOC)',
+    phonePrimary: '999',
+    phoneSecondary: '+974 4473 3333',
+    isAvailable24_7: true,
+  },
+];
