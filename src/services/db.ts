@@ -134,6 +134,10 @@ class IndexedDbService {
     });
   }
 
+  public async get<T>(storeName: DbStoreName, id: IDBValidKey): Promise<T | null> {
+    return this.getById<T>(storeName, id);
+  }
+
   public async put<T>(storeName: DbStoreName, item: T): Promise<void> {
     const key = (item as any)?.id || (item as any)?.code || Math.random().toString();
     this.getMemoryStore(storeName).set(key, item);

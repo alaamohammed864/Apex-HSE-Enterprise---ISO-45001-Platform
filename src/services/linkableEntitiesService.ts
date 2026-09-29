@@ -198,4 +198,46 @@ export class LinkableEntitiesService {
       },
     ];
   }
+
+  public static async getProjects(): Promise<LinkableEntityItem[]> {
+    return this.getAvailableProjects();
+  }
+
+  public static async getDocuments(): Promise<LinkableEntityItem[]> {
+    return this.getAvailableDocuments();
+  }
+
+  public static async getRiskAssessments(): Promise<LinkableEntityItem[]> {
+    try {
+      const dbAssessments = await indexedDbService.getAll<any>('risk_assessments');
+      if (dbAssessments && dbAssessments.length > 0) {
+        return dbAssessments.map((ra) => ({
+          id: ra.id,
+          code: ra.id,
+          title: ra.activity || ra.hazard || 'Risk Assessment',
+          subtitle: `Tier: ${ra.initialTier || ra.initialRiskTier || 'HIGH'} • Residual: ${ra.residualTier || ra.residualRiskTier || 'LOW'}`,
+          type: 'DOCUMENT' as const,
+        }));
+      }
+    } catch {
+      // fallback
+    }
+    return [
+      {
+        id: 'RA-2026-001',
+        code: 'RA-2026-001',
+        title: 'Heavy Dual-Crane Tandem Lift',
+        subtitle: 'Tier: HIGH • Residual: Acceptable',
+        type: 'DOCUMENT',
+      },
+      {
+        id: 'RA-2026-002',
+        code: 'RA-2026-002',
+        title: 'Confined Space Column Entry',
+        subtitle: 'Tier: EXTREME • Residual: Tolerable',
+        type: 'DOCUMENT',
+      },
+    ];
+  }
 }
+

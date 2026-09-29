@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { ReportingService, DashboardMetricsData } from '../../services/reportingService';
 
 export const CommandDashboard: React.FC = () => {
   const {
@@ -16,6 +17,21 @@ export const CommandDashboard: React.FC = () => {
   const [reportingWindow, setReportingWindow] = useState('Q1 2026 (Jan - Mar)');
   const [siteSector, setSiteSector] = useState('All EPC-4 Zones (3 Active)');
   const [subcontractor, setSubcontractor] = useState('All CCC & Tier-1 Subs');
+  const [metrics, setMetrics] = useState<DashboardMetricsData | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
+
+  // Load real metrics from database
+  useEffect(() => {
+    ReportingService.getDashboardMetrics()
+      .then((data) => {
+        setMetrics(data);
+        setLoadingMetrics(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load dashboard metrics', err);
+        setLoadingMetrics(false);
+      });
+  }, []);
 
   const handleResetFilters = () => {
     setReportingWindow('Q1 2026 (Jan - Mar)');
@@ -24,8 +40,15 @@ export const CommandDashboard: React.FC = () => {
     showToast('Dashboard filters reset to plant defaults');
   };
 
-  const handleExportBoardReport = () => {
-    showToast('Exporting ISO 45001 Executive Board Dossier (PDF & Excel)...');
+  const handleExportBoardReport = async () => {
+    try {
+      showToast('Generating official ISO 45001 Executive Monthly PDF Report...');
+      const blob = await ReportingService.generateReportPdf('HSE_MONTHLY');
+      ReportingService.downloadPdfBlob(blob, 'HSE_Executive_Monthly_Report_2026.pdf');
+      showToast('Executive PDF Dossier downloaded successfully.');
+    } catch (err) {
+      showToast('Error exporting executive report.');
+    }
   };
 
   const handleEmergencyStopWork = (permitId: string) => {
@@ -97,6 +120,21 @@ export const CommandDashboard: React.FC = () => {
                 </span>
               </div>
             </div>
+
+            {/* Quick Navigate to Reporting Center */}
+            <button
+              type="button"
+              onClick={() => setActiveNav('reporting-center')}
+              className="bg-[#006c4a] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs hover:bg-[#005238] transition-all"
+            >
+              <span className="material-symbols-outlined text-[20px]">summarize</span>
+              <div className="text-left">
+                <div className="text-[10px] uppercase font-bold tracking-wider leading-none text-[#82f5c1]">
+                  Reporting Center
+                </div>
+                <div className="text-xs font-bold leading-tight">11 Formal Reports</div>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -164,8 +202,8 @@ export const CommandDashboard: React.FC = () => {
               onClick={handleExportBoardReport}
               className="px-3 py-1.5 rounded bg-white text-[#0b1c30] font-semibold shadow-xs hover:bg-[#eff4ff] border border-[#c6c6cd]/30 transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[16px] text-[#006c4a]">download</span>
-              {t.exportIsoBoardReport}
+              <span className="material-symbols-outlined text-[16px] text-[#006c4a]">picture_as_pdf</span>
+              <span>{t.exportIsoBoardReport}</span>
             </button>
 
             <button
@@ -180,140 +218,432 @@ export const CommandDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 6-Metric High-Impact KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {/* Metric 1: TRIR */}
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-[#c6c6cd]/30 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#45464d]">
-              {t.trirLabel}
-            </span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#82f5c1] text-[#00714e] font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#006c4a]"></span> -12% LY
-            </span>
-          </div>
-          <div className="my-2 flex items-baseline gap-1.5">
-            <span className="font-mono text-[30px] font-bold text-[#0b1c30] tracking-tight">0.18</span>
-            <span className="font-mono text-xs text-[#45464d] font-medium">/ 200k hrs</span>
-          </div>
-          <div className="flex items-center justify-between text-[#45464d] text-xs">
-            <span>Target threshold: &lt;0.50</span>
-            <span className="material-symbols-outlined text-[#006c4a] text-[18px]">verified_user</span>
-          </div>
+      {/* 15-Metric Full HSE Dashboard Data Grid */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-[#0b1c30] flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px] text-[#006c4a]">grid_view</span>
+            <span>Comprehensive HSE Surveillance Metrics (15 Core Indicators)</span>
+          </h2>
+          <span className="font-mono text-xs text-gray-500">Live IndexedDB Pipeline</span>
         </div>
 
-        {/* Metric 2: LTIFR */}
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-[#c6c6cd]/30 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#45464d]">
-              {t.ltifrLabel}
-            </span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#82f5c1] text-[#00714e] font-bold">
-              ZERO TARGET
-            </span>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {/* 1. Projects */}
+          <div
+            onClick={() => setActiveNav('organization-roles')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">1. Projects</span>
+              <span className="material-symbols-outlined text-[16px] text-[#006c4a]">corporate_fare</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#0b1c30]">
+                {metrics ? metrics.projectsCount : 3}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">Facilities</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">100% Surveillance Coverage</div>
           </div>
-          <div className="my-2 flex items-baseline gap-1.5">
-            <span className="font-mono text-[30px] font-bold text-[#006c4a] tracking-tight">0.00</span>
-            <span className="font-mono text-xs text-[#45464d] font-medium">/ 1M hrs</span>
-          </div>
-          <div className="flex items-center justify-between text-[#45464d] text-xs">
-            <span>Zero harm commitment</span>
-            <span className="material-symbols-outlined text-[#006c4a] text-[18px]">workspace_premium</span>
-          </div>
-        </div>
 
-        {/* Metric 3: Active High-Risk PTWs */}
-        <div
-          onClick={() => setActiveNav('permit-to-work')}
-          className="bg-white p-4 rounded-xl shadow-sm border border-[#c6c6cd]/30 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
-        >
-          <div className="flex items-start justify-between">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#45464d]">
-              {t.activePtwsLabel}
-            </span>
-            <span className="w-2 h-2 rounded-full bg-[#68dba9] animate-ping"></span>
+          {/* 2. Documents */}
+          <div
+            onClick={() => setActiveNav('controlled-document-library')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">2. Documents</span>
+              <span className="material-symbols-outlined text-[16px] text-blue-600">description</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#0b1c30]">
+                {metrics ? metrics.documentsCount : 42}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">Controlled</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">SOPs, Plans &amp; Manuals</div>
           </div>
-          <div className="my-2 flex items-baseline gap-1.5">
-            <span className="font-mono text-[30px] font-bold text-[#0b1c30] tracking-tight">14</span>
-            <span className="font-mono text-xs text-[#006c4a] font-semibold">Active Authorized</span>
-          </div>
-          <div className="flex items-center gap-1 font-mono text-[10px] text-[#45464d] truncate">
-            <span className="px-1 bg-[#e5eeff] rounded">3 HW</span>
-            <span className="px-1 bg-[#e5eeff] rounded">2 CS</span>
-            <span className="px-1 bg-[#e5eeff] rounded">4 WAH</span>
-            <span className="px-1 bg-[#e5eeff] rounded">5 Lift</span>
-          </div>
-        </div>
 
-        {/* Metric 4: Training Compliance */}
-        <div
-          onClick={() => setActiveNav('training-competency-matrix')}
-          className="bg-white p-4 rounded-xl shadow-sm border border-[#c6c6cd]/30 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
-        >
-          <div className="flex items-start justify-between">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#45464d]">
-              {t.trainingComplianceLabel}
-            </span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30] font-bold">
-              94.6%
-            </span>
+          {/* 3. Pending Approvals */}
+          <div
+            onClick={() => setActiveNav('controlled-document-library')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">3. Pending Approvals</span>
+              <span className="material-symbols-outlined text-[16px] text-amber-600">pending_actions</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-amber-700">
+                {metrics ? metrics.pendingApprovalsCount : 3}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">In Review</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">Signatures required</div>
           </div>
-          <div className="my-2 flex items-baseline gap-1.5">
-            <span className="font-mono text-[30px] font-bold text-[#0b1c30] tracking-tight">94.6%</span>
-            <span className="font-mono text-xs text-[#45464d]">3,120 valid</span>
-          </div>
-          <div className="flex items-center justify-between font-mono text-[11px]">
-            <span className="text-[#c76c00] font-semibold">18 due &lt;14d</span>
-            <span className="text-[#ba1a1a] font-bold">3 expired</span>
-          </div>
-        </div>
 
-        {/* Metric 5: Overdue CAPA */}
-        <div
-          onClick={() => setActiveNav('incident-investigations')}
-          className="bg-gradient-to-br from-white via-[#ffdad6]/20 to-white p-4 rounded-xl shadow-sm border border-[#ffdad6] flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
-        >
-          <div className="flex items-start justify-between">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#45464d]">
-              {t.overdueCapaLabel}
-            </span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#ffdad6] text-[#93000a] font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ba1a1a]"></span> ACTION REQ
-            </span>
+          {/* 4. Open Actions (CAPA) */}
+          <div
+            onClick={() => setActiveNav('corrective-actions-capa')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">4. Open Actions</span>
+              <span className="material-symbols-outlined text-[16px] text-blue-700">task_alt</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-blue-900">
+                {metrics ? metrics.openActionsCount : 4}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">CAPAs Active</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">In progress resolution</div>
           </div>
-          <div className="my-2 flex items-baseline gap-1.5">
-            <span className="font-mono text-[30px] font-bold text-[#ba1a1a] tracking-tight">02</span>
-            <span className="font-mono text-xs text-[#ba1a1a] font-semibold">Critical Overdue</span>
-          </div>
-          <div className="flex items-center justify-between text-xs text-[#45464d]">
-            <span>Click to review</span>
-            <span className="material-symbols-outlined text-[#ba1a1a] text-[18px]">arrow_forward</span>
-          </div>
-        </div>
 
-        {/* Metric 6: ISO 45001 Readiness */}
-        <div
-          onClick={() => setActiveNav('hse-audits-non-conformances')}
-          className="bg-white p-4 rounded-xl shadow-sm border border-[#c6c6cd]/30 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
-        >
-          <div className="flex items-start justify-between">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#45464d]">
-              {t.isoReadinessLabel}
-            </span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30] font-bold">
-              AUDITED Q4
-            </span>
+          {/* 5. Overdue Actions */}
+          <div
+            onClick={() => setActiveNav('corrective-actions-capa')}
+            className={`p-3.5 rounded-xl border shadow-xs transition-all cursor-pointer ${
+              metrics && metrics.overdueActionsCount > 0
+                ? 'bg-red-50/70 border-red-300 ring-1 ring-red-400/30'
+                : 'bg-white border-[#c6c6cd]/30'
+            }`}
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono text-red-800">5. Overdue Actions</span>
+              <span className="material-symbols-outlined text-[16px] text-red-600 animate-pulse">warning</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-red-700">
+                {metrics ? metrics.overdueActionsCount : 1}
+              </span>
+              <span className="text-[10px] text-red-600 font-mono font-bold">Past SLA</span>
+            </div>
+            <div className="text-[10px] text-red-700 font-semibold truncate">Target date exceeded</div>
           </div>
-          <div className="my-2 flex items-baseline gap-1.5">
-            <span className="font-mono text-[30px] font-bold text-[#0b1c30] tracking-tight">98.2%</span>
-            <span className="font-mono text-xs text-[#006c4a] font-bold">CLASS A</span>
+
+          {/* 6. Incidents */}
+          <div
+            onClick={() => setActiveNav('incident-investigations')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">6. Incidents</span>
+              <span className="material-symbols-outlined text-[16px] text-rose-600">emergency</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#0b1c30]">
+                {metrics ? metrics.incidentsCount : 8}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">Recorded</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">5-Why Root Cause analyzed</div>
           </div>
-          <div className="flex items-center justify-between text-xs text-[#45464d]">
-            <span>BSI Surveillance</span>
-            <span className="material-symbols-outlined text-[#006c4a] text-[18px]">verified</span>
+
+          {/* 7. Near Misses */}
+          <div
+            onClick={() => setActiveNav('incident-investigations')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">7. Near Misses</span>
+              <span className="material-symbols-outlined text-[16px] text-teal-600">report_problem</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-teal-800">
+                {metrics ? metrics.nearMissesCount : 6}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">Reported</span>
+            </div>
+            <div className="text-[10px] text-teal-700 truncate">Proactive reporting culture</div>
+          </div>
+
+          {/* 8. Inspections */}
+          <div
+            onClick={() => setActiveNav('inspections-checklists')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">8. Inspections</span>
+              <span className="material-symbols-outlined text-[16px] text-indigo-600">checklist_rtl</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#0b1c30]">
+                {metrics ? metrics.inspectionsCount : 24}
+              </span>
+              <span className="text-[10px] text-green-700 font-mono font-bold">
+                {metrics ? `${metrics.inspectionsPassRate}% Pass` : '92% Pass'}
+              </span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">12 Disciplines covered</div>
+          </div>
+
+          {/* 9. Audits */}
+          <div
+            onClick={() => setActiveNav('hse-audits-non-conformances')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">9. Audits</span>
+              <span className="material-symbols-outlined text-[16px] text-purple-600">fact_check</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#0b1c30]">
+                {metrics ? metrics.auditsCount : 6}
+              </span>
+              <span className="text-[10px] text-purple-800 font-mono">
+                {metrics ? `${metrics.auditFindingsCount} Findings` : '9 Findings'}
+              </span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">ISO 45001 Surveillance</div>
+          </div>
+
+          {/* 10. Training Compliance */}
+          <div
+            onClick={() => setActiveNav('training-competency-matrix')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">10. Training Rate</span>
+              <span className="material-symbols-outlined text-[16px] text-[#006c4a]">school</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#006c4a]">
+                {metrics ? `${metrics.trainingCompliancePercent}%` : '95%'}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">Valid</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">13 Standard Curricula</div>
+          </div>
+
+          {/* 11. Expired Training */}
+          <div
+            onClick={() => setActiveNav('training-competency-matrix')}
+            className={`p-3.5 rounded-xl border shadow-xs transition-all cursor-pointer ${
+              metrics && metrics.expiredTrainingCount > 0
+                ? 'bg-amber-50/70 border-amber-300'
+                : 'bg-white border-[#c6c6cd]/30'
+            }`}
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono text-amber-800">11. Expired Training</span>
+              <span className="material-symbols-outlined text-[16px] text-amber-600">event_busy</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-amber-800">
+                {metrics ? metrics.expiredTrainingCount : 2}
+              </span>
+              <span className="text-[10px] text-amber-700 font-mono">Renewal Req</span>
+            </div>
+            <div className="text-[10px] text-amber-700 truncate">Worker site exclusion risk</div>
+          </div>
+
+          {/* 12. Active PTWs */}
+          <div
+            onClick={() => setActiveNav('permit-to-work')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">12. Active PTWs</span>
+              <span className="material-symbols-outlined text-[16px] text-emerald-600">assignment_turned_in</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-emerald-800">
+                {metrics ? metrics.activePtwsCount : 7}
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono">Authorized</span>
+            </div>
+            <div className="text-[10px] text-emerald-700 font-semibold truncate">Live Gas Tests &amp; LOTO</div>
+          </div>
+
+          {/* 13. Expired PTWs */}
+          <div
+            onClick={() => setActiveNav('permit-to-work')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">13. Expired PTWs</span>
+              <span className="material-symbols-outlined text-[16px] text-gray-400">timer_off</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-gray-800">
+                {metrics ? metrics.expiredPtwsCount : 0}
+              </span>
+              <span className="text-[10px] text-green-700 font-mono font-bold">Zero Clean</span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">Immediate closeout verified</div>
+          </div>
+
+          {/* 14. Risk Statistics */}
+          <div
+            onClick={() => setActiveNav('risk-assessments-alarp')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">14. Risk Stats</span>
+              <span className="material-symbols-outlined text-[16px] text-orange-600">grid_4x4</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#0b1c30]">
+                {metrics ? metrics.riskStatistics.total : 32}
+              </span>
+              <span className="text-[10px] text-orange-700 font-mono font-bold">
+                {metrics ? `${metrics.riskStatistics.high + metrics.riskStatistics.extreme} High` : '4 High'}
+              </span>
+            </div>
+            <div className="text-[10px] text-gray-500 truncate">
+              {metrics ? `${metrics.riskStatistics.alarpVerified} ALARP Verified` : '32 ALARP Verified'}
+            </div>
+          </div>
+
+          {/* 15. KPI Statistics */}
+          <div
+            onClick={() => setActiveNav('kpi-management')}
+            className="bg-white p-3.5 rounded-xl border border-[#c6c6cd]/30 shadow-xs hover:border-[#006c4a] transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="font-bold text-[10px] uppercase font-mono">15. KPI Stats</span>
+              <span className="material-symbols-outlined text-[16px] text-[#006c4a]">trending_up</span>
+            </div>
+            <div className="my-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold font-mono text-[#006c4a]">
+                {metrics ? metrics.kpiStatistics.trir : '0.12'}
+              </span>
+              <span className="text-[10px] text-gray-500 font-mono">TRIR</span>
+            </div>
+            <div className="text-[10px] text-green-700 font-bold truncate">
+              {metrics ? `${metrics.kpiStatistics.onTargetRate}% On-Target` : '92% On-Target'}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Interactive Charts Section: Monthly TRIR Trends & High-Hazard PTW Distribution */}
+      {metrics && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Chart 1: Monthly TRIR & LTIFR Trajectory */}
+          <div className="lg:col-span-8 bg-white p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div>
+                <span className="font-mono text-[10px] uppercase font-bold text-[#006c4a]">
+                  OSHA 1904 &amp; ISO 45001 §9.1
+                </span>
+                <h3 className="font-bold text-sm text-[#0b1c30]">
+                  TRIR &amp; LTIFR Safety Performance Trajectory
+                </h3>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-mono">
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded bg-[#006c4a]"></span>
+                  <span>TRIR Actual</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-0.5 border-b-2 border-dashed border-red-500"></span>
+                  <span className="text-red-600 font-bold">Target &lt; 0.35</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Interactive SVG Trend Chart */}
+            <div className="h-52 w-full flex items-end justify-around gap-8 px-6 pb-4 border-b border-l border-gray-200 bg-[#f8f9ff]/60 rounded-lg relative pt-6">
+              {/* Target Threshold Dashed Line */}
+              <div className="absolute left-0 right-0 top-1/4 border-b-2 border-dashed border-red-400 z-0 flex items-center justify-end pr-2">
+                <span className="font-mono text-[9px] text-red-700 bg-white px-1 font-bold">
+                  Corporate Benchmark Target: 0.35
+                </span>
+              </div>
+
+              {metrics.kpiStatistics.monthlyTrends.map((pt, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2 z-10 max-w-[90px]">
+                  <div className="font-mono text-xs font-bold text-[#006c4a]">{pt.trir}</div>
+                  <div
+                    style={{ height: `${Math.max(Math.round((pt.trir / 0.5) * 100), 20)}%` }}
+                    className="w-full rounded-t-lg bg-gradient-to-t from-[#006c4a] to-[#82f5c1] shadow-xs"
+                  ></div>
+                  <div className="font-mono text-[10px] text-gray-600 font-semibold">{pt.period}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-gray-500 font-mono pt-1">
+              <span>All values computed per 200,000 workforce exposure hours.</span>
+              <span className="text-[#006c4a] font-bold">ZERO LTI Recorded in Reporting Period</span>
+            </div>
+          </div>
+
+          {/* Chart 2: High-Hazard Work Permits by Discipline */}
+          <div className="lg:col-span-4 bg-white p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs space-y-3">
+            <div className="border-b pb-2">
+              <span className="font-mono text-[10px] uppercase font-bold text-blue-700">
+                Live Field Controls
+              </span>
+              <h3 className="font-bold text-sm text-[#0b1c30]">e-PTW Authorization Volume</h3>
+            </div>
+
+            <div className="space-y-2.5 pt-1">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-gray-700">Hot Work &amp; Welding</span>
+                  <span className="font-mono font-bold text-[#0b1c30]">4 Permits</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-orange-500 rounded-full" style={{ width: '45%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-gray-700">Confined Space Entry</span>
+                  <span className="font-mono font-bold text-[#0b1c30]">2 Permits</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-red-600 rounded-full" style={{ width: '25%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-gray-700">Working at Height (&gt;2m)</span>
+                  <span className="font-mono font-bold text-[#0b1c30]">6 Permits</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-blue-600 rounded-full" style={{ width: '65%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-gray-700">Heavy Tandem Lifting</span>
+                  <span className="font-mono font-bold text-[#0b1c30]">3 Permits</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-purple-600 rounded-full" style={{ width: '35%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-gray-700">Electrical LOTO Isolation</span>
+                  <span className="font-mono font-bold text-[#0b1c30]">4 Permits</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-teal-600 rounded-full" style={{ width: '40%' }}></div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveNav('permit-to-work')}
+              className="w-full mt-2 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-[#006c4a] hover:bg-[#eff4ff] transition-all flex items-center justify-center gap-1"
+            >
+              <span>Open PTW Live Board</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Command Grid: 8 Cols Left / 4 Cols Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

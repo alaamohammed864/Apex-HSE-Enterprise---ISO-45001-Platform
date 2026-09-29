@@ -9,6 +9,13 @@ import { DocumentLibrary } from './components/documents/DocumentLibrary';
 import { DynamicFormBuilder } from './components/formBuilder/DynamicFormBuilder';
 import { RiskMatrixAlarp } from './components/risk/RiskMatrixAlarp';
 import { IncidentInvestigationView } from './components/views/IncidentInvestigationView';
+import { CapaManagementModule } from './components/capa/CapaManagementModule';
+import { InspectionsManagementModule } from './components/inspections/InspectionsManagementModule';
+import { AuditsManagementModule } from './components/audits/AuditsManagementModule';
+import { TrainingManagementModule } from './components/training/TrainingManagementModule';
+import { KpiManagementModule } from './components/kpis/KpiManagementModule';
+import { PtwManagementModule } from './components/ptw/PtwManagementModule';
+import { ReportingCenterModule } from './components/reports/ReportingCenterModule';
 import { GenericIsoView } from './components/views/GenericIsoView';
 import { NewRecordModal } from './components/modals/NewRecordModal';
 import { AuditLedgerModal } from './components/modals/AuditLedgerModal';
@@ -17,7 +24,7 @@ import { PtwBoardModal } from './components/modals/PtwBoardModal';
 import { UserSwitcherModal } from './components/modals/UserSwitcherModal';
 
 const AppContent: React.FC = () => {
-  const { activeNav, language, theme, toastMessage } = useApp();
+  const { activeNav, setActiveNav, language, theme, toastMessage } = useApp();
 
   const renderActiveView = () => {
     switch (activeNav) {
@@ -33,6 +40,34 @@ const AppContent: React.FC = () => {
         return <RiskMatrixAlarp />;
       case 'incident-investigations':
         return <IncidentInvestigationView />;
+      case 'corrective-actions-capa':
+        return (
+          <CapaManagementModule
+            onNavigateToIncidents={() => setActiveNav('incident-investigations')}
+            onNavigateToAudits={() => setActiveNav('hse-audits-non-conformances')}
+            onNavigateToInspections={() => setActiveNav('inspections-checklists')}
+          />
+        );
+      case 'inspections-checklists':
+        return (
+          <InspectionsManagementModule
+            onNavigateToCapa={() => setActiveNav('corrective-actions-capa')}
+          />
+        );
+      case 'hse-audits-non-conformances':
+        return (
+          <AuditsManagementModule
+            onNavigateToCapa={() => setActiveNav('corrective-actions-capa')}
+          />
+        );
+      case 'permit-to-work':
+        return <PtwManagementModule />;
+      case 'training-competency-matrix':
+        return <TrainingManagementModule />;
+      case 'kpi-management':
+        return <KpiManagementModule />;
+      case 'reporting-center':
+        return <ReportingCenterModule />;
       case 'bilingual-document-viewer':
         return (
           <div className="p-6">

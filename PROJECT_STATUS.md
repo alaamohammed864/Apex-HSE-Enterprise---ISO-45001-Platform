@@ -210,4 +210,195 @@
 - [x] **Automated Verification**:
   - `scripts/testPhase5RiskManagement.ts` executed with 100% pass rate.
 
+---
+
+## Phase 6: Incidents, CAPA, Inspections & Audits (COMPLETED)
+- [x] **Module A: Incident Management (`src/components/incidents/IncidentManagementModule.tsx`, `src/services/safetyOpsService.ts`)**:
+  - Complete incident reporting and investigation dossier (Incident Number, Date, Time, Location, Project, Department, Person, Contractor, Activity, Incident Type, Description, Immediate Actions).
+  - Interactive 5-Why Root Cause Analysis tool with 5-level causality tree and systemic defect identification.
+  - Multi-causal Contributing Factors analysis (Human, Equipment, Environmental, Procedural, Organizational).
+  - Witness testimonies management (Name, Role, Contractor, Contact, Statement, Interview Date, Interviewer).
+  - Evidence and photo upload gallery with captions, timestamps, and upload metadata.
+  - Corrective & Preventive Action definition with direct 1-click dispatch to CAPA.
+  - Formal Incident Closure workflow with sign-off date, author, and verification comments.
+- [x] **Module B: Corrective Action / CAPA (`src/components/capa/CapaManagementModule.tsx`)**:
+  - Central CAPA register (Finding, Source, Risk Level, Action Required, Responsible Person, Department, Target Date, Evidence, Status, Verification, Closure Date, Verified By).
+  - Automatic Overdue Detection: actions where `targetDate < today` and status != `CLOSED` are automatically classified as `OVERDUE` with live alerting banner.
+  - Verification & Closeout workflow: verification notes, effectiveness confirmation, and closure timestamp.
+  - Export CAPA Register to CSV with all fields and audit links.
+- [x] **Module C: Dynamic Checklist Builder & Inspections (`src/components/inspections/InspectionsManagementModule.tsx`)**:
+  - Dynamic Checklist Builder supporting all 12 required disciplines:
+    1. PPE
+    2. Scaffold
+    3. Crane
+    4. Lifting Equipment
+    5. Fire Equipment
+    6. Vehicle
+    7. Excavation
+    8. Housekeeping
+    9. Electrical
+    10. Working at Height
+    11. Confined Space
+    12. Emergency Equipment
+  - Field Inspection Runner with evaluation per item: PASS, FAIL, N/A, COMMENT, PHOTO capture, and CORRECTIVE ACTION.
+  - Live compliance scoring calculation (% score and overall result: PASS, CONDITIONAL PASS, FAIL).
+  - Inspection → CAPA Direct Dispatch: 1-click button on failed items automatically spawns a linked CAPA record in the central register.
+  - Historical inspection execution logs and printable report viewer.
+- [x] **Module D: Audits & Non-Conformances (`src/components/audits/AuditsManagementModule.tsx`)**:
+  - Complete Audit Lifecycle: Audit Plan, Audit Scope, Audit Criteria (ISO 45001, OSHA, Site Rules), Lead Auditor & Team, Auditee, Department, Project, Planned Date.
+  - Standard Clause Audit Checklist evaluation (Conformant, Nonconformant, Observation, N/A).
+  - Findings Registry: Major Nonconformity, Minor Nonconformity, and Observations with evidence notes and corrective action requirements.
+  - Audit → CAPA Direct Dispatch: 1-click button on findings automatically creates a linked CAPA record and sets status to `CAPA_DISPATCHED`.
+  - Formal ISO 45001 Final Audit Report Generator: executive summary, automatic Conformance Rating calculation, and auditor digital sign-off.
+- [x] **Cross-Module Relationship Testing & Verification (`scripts/testPhase6SafetyOps.ts`)**:
+  - 55 automated tests executed with 100% pass rate:
+    - Incident → CAPA bridge verified.
+    - Audit → CAPA bridge verified.
+    - Inspection → CAPA bridge verified.
+    - Automatic overdue identification verified.
+    - All 12 inspection checklist disciplines verified.
+
+---
+
+## Phase 7: Training, KPI & Permit to Work (COMPLETED)
+- [x] **Module A: Training Management (`src/components/training/TrainingManagementModule.tsx`, `src/services/phase7Service.ts`)**:
+  - Training Courses Catalogue covering 13 standard industrial safety curricula:
+    1. HSE Induction
+    2. First Aid
+    3. Fire Fighting
+    4. Working at Height
+    5. Confined Space
+    6. Lifting & Rigging
+    7. Scaffold Safety
+    8. PTW
+    9. Emergency Response
+    10. Defensive Driving
+    11. Manual Handling
+    12. Chemical Safety
+    13. Electrical Safety
+  - Employee Training Records Tracking: Employee, Course, Training Date, Expiry Date, Certificate, Trainer, Training Provider, Score, and Status (`VALID`, `EXPIRING`, `EXPIRED`, `NOT COMPLETED`).
+  - Interactive Competency Matrix: Worker vs Course grid with color-coded status badges, real-time renewal reminders, and instant digital certificate viewer/download modal.
+  - Automated Expiry Tracking & Compliance Score calculation.
+- [x] **Module B: Configurable KPI Management & Trend Reports (`src/components/kpis/KpiManagementModule.tsx`)**:
+  - 12 Configurable Leading & Lagging HSE Indicators:
+    1. TRIR (Total Recordable Incident Rate)
+    2. LTIFR (Lost Time Injury Frequency Rate)
+    3. Near Misses
+    4. Recordable Incidents
+    5. Lost Time Injuries
+    6. First Aid Cases
+    7. Safety Observations
+    8. Inspections Completed
+    9. Audits Completed
+    10. CAPA On-Time Closure Rate
+    11. Training Completion Rate
+    12. Permit Compliance Rate
+  - Multi-Period Analytics: Monthly, Quarterly, and Yearly reporting.
+  - Interactive SVG Trend Charts with benchmark target threshold indicator lines, actual vs target comparisons, and executive board reporting export.
+- [x] **Module C: Electronic Permit to Work / e-PTW (`src/components/ptw/PtwManagementModule.tsx`)**:
+  - 10 High-Hazard Work Permit Disciplines:
+    1. Hot Work
+    2. Cold Work
+    3. Confined Space Entry
+    4. Working at Height
+    5. Excavation
+    6. Lifting
+    7. Electrical Isolation
+    8. Line Breaking
+    9. Radiography
+    10. Equipment/Vehicle Entry
+  - Complete Operational Permit Dossier Fields:
+    - Permit Number
+    - Work Description
+    - Location
+    - Contractor
+    - Work Party (Headcount, Lead, Members)
+    - Issuer & Receiver
+    - Safety Controls & Mandatory PPE
+    - Lockout / Tagout (LOTO) Energy Isolation Points (Tag number, equipment, lock number, applied by, verified by)
+    - Atmospheric Multi-Gas Testing (O2, LEL, H2S, CO) with acceptance validation
+    - Emergency Arrangements (Assembly point, standby, fire station)
+    - Start & Expiry Date/Time
+    - Multi-Tier Digital Approvals & Signatures (Issuing Authority, Performing Authority, Safety Officer)
+    - Lifecycle Statuses: `DRAFT`, `ISSUED`, `ACTIVE`, `SUSPENDED`, `CLOSED`, `CANCELLED`, `EXPIRED`
+    - Closeout & normalization protocol (worksite restored clean, isolations removed, final sign-off)
+  - Full Relational Connectivity to:
+    - Projects
+    - Contractors
+    - Risk Assessments (from Phase 5)
+    - Employees
+    - Controlled Documents (SOPs, HSE Plans from Phase 2/4)
+- [x] **Verification Testing & Integrity (`scripts/testPhase7PermitsKpiTraining.ts`)**:
+  - 60 automated unit and integration tests executed with 100% pass rate:
+    - Course catalogue integrity verified.
+    - Expiry status calculation verified.
+    - All 12 KPIs and formulas verified across Monthly, Quarterly, and Yearly modes.
+    - e-PTW creation, cross-module links, gas testing, LOTO isolations, and lifecycle transitions verified.
+
+---
+
+## Phase 8: Dashboard, Reporting & Document Generation (COMPLETED)
+- [x] **Real HSE Dashboard Using Database Data (`src/components/dashboard/CommandDashboard.tsx`, `src/services/reportingService.ts`)**:
+  - Aggregates live data directly from IndexedDB / database across all modules.
+  - Implements all 15 requested dashboard metrics:
+    1. **Projects**: Number of active surveillance facilities with locations and coverage.
+    2. **Documents**: Total controlled documents (SOPs, Plans, Manuals) in database.
+    3. **Pending Approvals**: Documents under review and permits pending authorization.
+    4. **Open Actions**: Active corrective actions in progress.
+    5. **Overdue Actions**: High-priority alert banner for actions exceeding target due date.
+    6. **Incidents**: Total recorded workplace incidents.
+    7. **Near Misses**: Proactive near miss safety hazard observations.
+    8. **Inspections**: Inspections completed and percentage pass rate.
+    9. **Audits**: Formal audits completed and total open findings count.
+    10. **Training Compliance**: Overall workforce competency compliance percentage.
+    11. **Expired Training**: Expired worker certificates requiring renewal.
+    12. **Active PTWs**: Authorized high-hazard permits currently active on site.
+    13. **Expired PTWs**: Expired permits requiring closeout normalization.
+    14. **Risk Statistics**: Risk register breakdown (Extreme, High, Medium, Low, ALARP).
+    15. **KPI Statistics**: TRIR, LTIFR, and overall on-target percentage.
+  - **Interactive Charts**:
+    - Monthly TRIR & LTIFR Safety Performance Trajectory chart with corporate benchmark line.
+    - High-Hazard Work Permits volume breakdown by discipline (Hot Work, Confined Space, Height, Lifting, LOTO).
+- [x] **Corporate Reporting Center (`src/components/reports/ReportingCenterModule.tsx`)**:
+  - Full catalogue of 11 standardized reports:
+    1. *HSE Monthly Report* (`RPT-HSE-MON-2026-03`)
+    2. *HSE Weekly Report* (`RPT-HSE-WK-2026-W13`)
+    3. *Incident Report* (`RPT-INC-INV-2026-042`)
+    4. *Inspection Report* (`RPT-INS-CHK-2026-088`)
+    5. *Audit Report* (`RPT-AUD-ISO-2026-012`)
+    6. *Training Report* (`RPT-TRN-MAT-2026-004`)
+    7. *KPI Report* (`RPT-KPI-EXE-2026-Q1`)
+    8. *Corrective Action Report* (`RPT-CAPA-REG-2026-05`)
+    9. *Risk Register* (`RPT-RSK-REG-2026-01`)
+    10. *PTW Report* (`RPT-PTW-SUM-2026-019`)
+    11. *Document Status Report* (`RPT-DOC-CTR-2026-01`)
+- [x] **Professional Vector PDF Generation Engine (`src/services/reportingService.ts`)**:
+  - Pure text-based vector PDF generation via `jsPDF` and `jspdf-autotable` (no HTML screenshot hacks).
+  - Consistent corporate Title Block & Header:
+    - Company Logo Emblem (vector drawn)
+    - Company Name: "4M ENGINEERING CLOUD — HSE ENTERPRISE"
+    - Project Name
+    - Document Title
+    - Document Number
+    - Revision (e.g., Rev 01)
+    - Date
+    - Prepared By, Reviewed By, Approved By
+    - Page Number ("Page X of Y" via dynamic page hooks)
+  - Security classification footer ("CONFIDENTIAL & CONTROLLED COPY").
+  - Formatted printable dossiers tested for:
+    - **HSE Plan**: 33-section executive plan with scope, leadership, emergency response, and approval signatures.
+    - **Risk Assessment**: 5x5 ALARP register with initial risk, controls, residual risk, and ALARP justification.
+    - **Incident Report**: Investigation dossier with 5-Why root cause tree, contributing factors, witness testimonies, and CAPA links.
+    - **Inspection Report**: 12-discipline checklist with Pass/Fail/NA, scoring, and field notes.
+    - **Audit Report**: ISO 45001 audit findings, nonconformities (major/minor), and conformance rating.
+- [x] **Tabular CSV / Excel Export**:
+  - Full CSV export support for all 11 reports with UTF-8 BOM, escaped values, and detailed audit columns.
+- [x] **Automated Verification Testing (`scripts/testPhase8ReportingAndPdfs.ts`)**:
+  - 45 automated unit and integration tests executed with 100% pass rate:
+    - 15 dashboard metrics verification against database.
+    - 11 catalogue reports verification.
+    - Vector PDF generation tested for HSE Plan, Risk Assessment, Incident Report, Inspection Report, Audit Report, and Monthly Report.
+    - Validation of non-empty blobs and `%PDF-` vector magic headers.
+
+
 

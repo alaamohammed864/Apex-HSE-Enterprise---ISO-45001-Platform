@@ -463,6 +463,203 @@ Every field configured inside a template section supports:
 
 ---
 
-## 6. Other Operational Entities
-(Covering Incidents, CAPA, Inspections, Training Matrix, KPIs, e-PTW, Audits, Emergency Plans, HSE Budget, Notifications, and Audit Logs as defined in Phase 1).
+## 6. Phase 6 Operational Schema: Incidents, CAPA, Inspections & Audits
+
+### Table: `incident_records` (ISO 45001 §10.2)
+- `id`: VARCHAR(50) (Primary Key, e.g. `INC-2026-042`)
+- `incident_number`: VARCHAR(50) UNIQUE NOT NULL
+- `date`: DATE NOT NULL (YYYY-MM-DD)
+- `time`: VARCHAR(10) (HH:mm)
+- `location`: VARCHAR(255) NOT NULL
+- `project`: VARCHAR(255) NOT NULL
+- `department`: VARCHAR(100) NOT NULL
+- `person`: VARCHAR(100) NOT NULL (Involved person / injured)
+- `contractor`: VARCHAR(100) NOT NULL
+- `activity`: VARCHAR(255) NOT NULL
+- `incident_type`: VARCHAR(50) NOT NULL ('NEAR_MISS', 'FIRST_AID', 'MEDICAL_TREATMENT', 'LOST_TIME_INJURY', 'RESTRICTED_WORK', 'ENVIRONMENTAL_SPILL', 'PROPERTY_DAMAGE', 'HIGH_POTENTIAL')
+- `description`: TEXT NOT NULL
+- `immediate_actions`: TEXT NOT NULL
+- `root_cause`: TEXT NOT NULL
+- `five_why_analysis`: JSONB (`[{ level: 1..5, question: string, answer: string, isSystemicRootCause: boolean }]`)
+- `contributing_factors`: JSONB (`{ humanFactors: string[], equipmentFactors: string[], environmentalFactors: string[], proceduralFactors: string[], organizationalFactors: string[] }`)
+- `witnesses`: JSONB (`[{ id, name, role, contractorOrDept, contactNumber, statement, interviewDate, interviewedBy }]`)
+- `evidence`: JSONB (`[{ id, title, type: 'PHOTO'|'DOCUMENT'|..., urlOrBase64, description, uploadedAt, capturedBy }]`)
+- `photos`: JSONB
+- `corrective_actions`: TEXT
+- `preventive_actions`: TEXT
+- `responsible_person`: VARCHAR(100)
+- `due_date`: DATE
+- `status`: VARCHAR(30) ('REPORTED', 'UNDER_INVESTIGATION', 'CAPA_PENDING', 'CLOSED')
+- `closure`: JSONB (`{ closedDate: string, closedBy: string, closureComments: string, verificationSignature?: string }`)
+- `spawned_capa_ids`: JSONB (`string[]`)
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `corrective_actions` / CAPA (ISO 45001 §10.2)
+- `id`: VARCHAR(50) (Primary Key, e.g. `CAPA-2026-019`)
+- `finding`: TEXT NOT NULL
+- `source`: VARCHAR(50) NOT NULL ('INCIDENT', 'AUDIT', 'INSPECTION', 'HAZARD', 'SAFETY_OBSERVATION')
+- `source_reference_id`: VARCHAR(50) (e.g. `INC-2026-042`, `AUD-2026-001`, `INS-2026-088`)
+- `source_title`: VARCHAR(255)
+- `risk_level`: VARCHAR(20) NOT NULL ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')
+- `action_required`: TEXT NOT NULL
+- `responsible_person`: VARCHAR(100) NOT NULL
+- `department`: VARCHAR(100) NOT NULL
+- `target_date`: DATE NOT NULL (Auto-overdue evaluated if past today and status != CLOSED)
+- `evidence`: JSONB (`IncidentEvidenceItem[]`)
+- `status`: VARCHAR(30) NOT NULL ('OPEN', 'IN PROGRESS', 'OVERDUE', 'PENDING VERIFICATION', 'CLOSED')
+- `verification`: JSONB (`{ verifiedBy: string, verificationDate: string, notes: string, isEffective: boolean }`)
+- `closure_date`: DATE
+- `verified_by`: VARCHAR(100)
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `inspection_templates` (12 Standard Disciplines)
+- `id`: VARCHAR(50) (Primary Key, e.g. `TMPL-INSP-SCAFFOLD`, `TMPL-INSP-PPE`)
+- `title`: VARCHAR(255) NOT NULL
+- `discipline`: VARCHAR(50) NOT NULL ('PPE', 'Scaffold', 'Crane', 'Lifting Equipment', 'Fire Equipment', 'Vehicle', 'Excavation', 'Housekeeping', 'Electrical', 'Working at Height', 'Confined Space', 'Emergency Equipment')
+- `version`: VARCHAR(20) NOT NULL
+- `description`: TEXT
+- `items`: JSONB (`[{ id, code, requirement, requirementAr, standardReference, criticalItem }]`)
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `inspection_records`
+- `id`: VARCHAR(50) (Primary Key, e.g. `INS-2026-101`)
+- `template_id`: VARCHAR(50) REFERENCES `inspection_templates`(`id`)
+- `template_title`: VARCHAR(255)
+- `discipline`: VARCHAR(50)
+- `date`: DATE NOT NULL
+- `inspector_name`: VARCHAR(100) NOT NULL
+- `project`: VARCHAR(255)
+- `location`: VARCHAR(255)
+- `contractor`: VARCHAR(100)
+- `items`: JSONB (`[{ itemId, requirement, status: 'PASS'|'FAIL'|'N/A', comment, photo, correctiveAction, capaIdCreated }]`)
+- `overall_result`: VARCHAR(30) ('PASS', 'CONDITIONAL_PASS', 'FAIL')
+- `compliance_score_percent`: INTEGER (0-100)
+- `notes`: TEXT
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `audit_records` (ISO 45001 §9.2)
+- `id`: VARCHAR(50) (Primary Key, e.g. `AUD-2026-001`)
+- `audit_number`: VARCHAR(50) UNIQUE NOT NULL
+- `audit_plan`: VARCHAR(255) NOT NULL
+- `audit_scope`: TEXT NOT NULL
+- `audit_criteria`: VARCHAR(255) NOT NULL
+- `auditor`: VARCHAR(100) NOT NULL (Lead Auditor)
+- `audit_team`: JSONB (`string[]`)
+- `auditee`: VARCHAR(100) NOT NULL
+- `department`: VARCHAR(100) NOT NULL
+- `project`: VARCHAR(255) NOT NULL
+- `planned_date`: DATE NOT NULL
+- `actual_date`: DATE
+- `status`: VARCHAR(30) ('PLANNED', 'IN_PROGRESS', 'REPORT_ISSUED', 'CLOSED')
+- `checklist`: JSONB (`[{ id, clause, requirement, criteria, result: 'CONFORMANT'|'NONCONFORMANT'|..., notes }]`)
+- `findings`: JSONB (`[{ id, auditId, type: 'NONCONFORMITY'|'OBSERVATION', severity: 'MAJOR_NC'|'MINOR_NC'|'OBSERVATION', clause, findingDescription, evidence, correctiveActionRequired, responsiblePerson, targetDate, capaIdCreated, status }]`)
+- `summary_conclusion`: TEXT
+- `conformance_rating`: VARCHAR(50) ('FULL_CONFORMANCE', 'SATISFACTORY_WITH_OBSERVATIONS', 'ACTION_REQUIRED', 'CRITICAL_DEFICIENCIES')
+- `final_report_generated`: BOOLEAN DEFAULT FALSE
+- `final_report_approved_by`: VARCHAR(100)
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+## 7. Phase 7 Operational Schema: Training, KPIs & Permit to Work (e-PTW)
+
+### Table: `training_courses` (ISO 45001 §7.2)
+- `id`: VARCHAR(50) (Primary Key, e.g. `CRS-HSE-IND`)
+- `code`: VARCHAR(50) UNIQUE NOT NULL (e.g. `TC-01`)
+- `title`: VARCHAR(255) NOT NULL
+- `title_ar`: VARCHAR(255)
+- `category`: VARCHAR(50) NOT NULL ('MANDATORY', 'HIGH_HAZARD', 'EQUIPMENT', 'EMERGENCY', 'ENVIRONMENTAL')
+- `validity_months`: INTEGER NOT NULL (e.g. 12, 24, 36)
+- `passing_score_percent`: INTEGER NOT NULL DEFAULT 80
+- `description`: TEXT
+- `mandatory_before_site_entry`: BOOLEAN DEFAULT FALSE
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `training_records` (ISO 45001 §7.2)
+- `id`: VARCHAR(50) (Primary Key, e.g. `TR-2026-001`)
+- `employee_id`: VARCHAR(50) NOT NULL
+- `employee_name`: VARCHAR(100) NOT NULL
+- `employee_badge`: VARCHAR(50) NOT NULL
+- `contractor`: VARCHAR(150) NOT NULL
+- `department`: VARCHAR(100) NOT NULL
+- `trade_role`: VARCHAR(100) NOT NULL
+- `course_id`: VARCHAR(50) REFERENCES `training_courses`(id)
+- `course_title`: VARCHAR(255) NOT NULL
+- `training_date`: DATE
+- `expiry_date`: DATE
+- `certificate_number`: VARCHAR(100)
+- `certificate_url_or_photo`: TEXT
+- `trainer`: VARCHAR(100) NOT NULL
+- `training_provider`: VARCHAR(150) NOT NULL
+- `score_achieved_percent`: INTEGER
+- `status`: VARCHAR(30) NOT NULL ('VALID', 'EXPIRING', 'EXPIRED', 'NOT COMPLETED')
+- `verified_by`: VARCHAR(100)
+- `notes`: TEXT
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `kpi_definitions` (ISO 45001 §9.1)
+- `id`: VARCHAR(50) (Primary Key, e.g. `KPI-TRIR`)
+- `code`: VARCHAR(50) UNIQUE NOT NULL (e.g. 'TRIR', 'LTIFR', 'NEAR_MISSES')
+- `name`: VARCHAR(255) NOT NULL
+- `name_ar`: VARCHAR(255)
+- `category`: VARCHAR(30) NOT NULL ('LAGGING', 'LEADING')
+- `description`: TEXT NOT NULL
+- `calculation_formula`: TEXT NOT NULL
+- `target_threshold`: DECIMAL(10, 4) NOT NULL
+- `unit`: VARCHAR(50) NOT NULL ('rate', 'count', '%', 'hours')
+- `is_lower_better`: BOOLEAN NOT NULL
+
+### Table: `kpi_records` (ISO 45001 §9.1)
+- `id`: VARCHAR(50) (Primary Key)
+- `period_type`: VARCHAR(20) NOT NULL ('MONTHLY', 'QUARTERLY', 'YEARLY')
+- `period_key`: VARCHAR(50) NOT NULL (e.g. '2026-01', '2026-Q1', '2026')
+- `period_label`: VARCHAR(100) NOT NULL
+- `metrics_payload`: JSONB NOT NULL
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `permit_to_work` (ISO 45001 §8.1.2)
+- `id`: VARCHAR(50) (Primary Key, e.g. `PTW-2026-042`)
+- `permit_number`: VARCHAR(50) UNIQUE NOT NULL
+- `permit_type`: VARCHAR(50) NOT NULL ('HOT_WORK', 'COLD_WORK', 'CONFINED_SPACE', 'WORKING_AT_HEIGHT', 'EXCAVATION', 'LIFTING', 'ELECTRICAL_ISOLATION', 'LINE_BREAKING', 'RADIOGRAPHY', 'EQUIPMENT_VEHICLE_ENTRY')
+- `work_description`: TEXT NOT NULL
+- `location`: VARCHAR(255) NOT NULL
+- `contractor`: VARCHAR(150) NOT NULL
+- `work_party_count`: INTEGER NOT NULL
+- `work_party_lead`: VARCHAR(100) NOT NULL
+- `work_party_members`: JSONB (`string[]`)
+- `issuer`: VARCHAR(100) NOT NULL
+- `receiver`: VARCHAR(100) NOT NULL
+- `project_id`: VARCHAR(50) NOT NULL
+- `project_name`: VARCHAR(255) NOT NULL
+- `linked_risk_assessment_id`: VARCHAR(50) REFERENCES `risk_assessments`(id)
+- `linked_risk_assessment_title`: VARCHAR(255)
+- `linked_document_ids`: JSONB (`string[]`)
+- `linked_document_codes`: JSONB (`string[]`)
+- `controls_summary`: TEXT NOT NULL
+- `mandatory_ppe`: JSONB (`string[]`)
+- `requires_fire_watch`: BOOLEAN DEFAULT FALSE
+- `requires_standby_person`: BOOLEAN DEFAULT FALSE
+- `requires_isolation`: BOOLEAN DEFAULT FALSE
+- `isolations`: JSONB (`[{ id, tagNumber, equipmentDescription, isolationType, lockNumber, appliedBy, verifiedBy }]`)
+- `requires_gas_testing`: BOOLEAN DEFAULT FALSE
+- `gas_tester_name`: VARCHAR(100)
+- `gas_testing_date_time`: TIMESTAMP WITH TIME ZONE
+- `gas_readings`: JSONB (`[{ gasName, unit, measuredValue, safeLimitDescription, isAcceptable }]`)
+- `gas_test_passed`: BOOLEAN DEFAULT FALSE
+- `emergency_arrangements`: TEXT NOT NULL
+- `assembly_point`: VARCHAR(100) NOT NULL
+- `nearest_fire_station_or_standby`: VARCHAR(150) NOT NULL
+- `start_date_time`: TIMESTAMP WITH TIME ZONE NOT NULL
+- `expiry_date_time`: TIMESTAMP WITH TIME ZONE NOT NULL
+- `status`: VARCHAR(30) NOT NULL ('DRAFT', 'ISSUED', 'ACTIVE', 'SUSPENDED', 'CLOSED', 'CANCELLED', 'EXPIRED')
+- `approvals`: JSONB (`{ issuingAuthoritySigned, issuingAuthorityName, issuingSignedAt, performingAuthoritySigned, performingAuthorityName, performingSignedAt, safetyOfficerSigned, safetyOfficerName, safetySignedAt }`)
+- `closure_details`: JSONB (`{ closedAt, closedBy, worksiteRestoredClean, isolationsRemoved, comments }`)
+- `suspension_reason`: TEXT
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 

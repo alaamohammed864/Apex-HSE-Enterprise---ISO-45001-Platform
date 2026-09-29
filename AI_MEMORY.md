@@ -72,3 +72,78 @@
 5. **Automated Verification**:
    - End-to-end test script `scripts/testPhase5RiskManagement.ts` passed 100% covering all CRUD, calculation, admin configuration, linking, and persistence workflows.
 
+## Phase 6: Incidents, CAPA, Inspections & Audits — Architectural Decisions
+1. **Unified Safety Operations Service (`src/services/safetyOpsService.ts`)**:
+   - Encapsulates multi-store persistence across `incident_records`, `corrective_actions`, `inspection_templates`, `inspection_records`, and `audit_records`.
+   - Single source of truth for all operational safety workflows, automatic overdue calculations, and cross-module bridges.
+2. **Incident Investigation & 5-Why Methodology (ISO 45001 §10.2)**:
+   - Full 18-field incident reporting model with classification, time/location, activity, and involved persons.
+   - Interactive 5-Why causal tree with 5 progressive levels identifying physical causes through to systemic organizational root causes.
+   - Formal multi-causal contributing factors analysis (Human, Equipment, Environmental, Procedural, Organizational).
+   - Witness interview logs, evidence/photo upload gallery, and digital sign-off closure workflow.
+3. **Automated CAPA Engine with Overdue Detection**:
+   - Real-time evaluation of `targetDate < today` to dynamically compute `OVERDUE` status for open/in-progress actions.
+   - Full CAPA lifecycle: OPEN → IN PROGRESS → PENDING VERIFICATION → CLOSED, with formal verification signoff (Verified By, notes, effectiveness confirmation).
+   - CSV export capability for stakeholder audits and board reporting.
+4. **Dynamic Checklist Builder (12 Disciplines)**:
+   - Pre-configured standard checklists for: PPE, Scaffold, Crane, Lifting Equipment, Fire Equipment, Vehicle, Excavation, Housekeeping, Electrical, Working at Height, Confined Space, Emergency Equipment.
+   - Customizable checklist builder: create new checklists, modify requirements, standard references, and critical items.
+   - Field runner supporting live item evaluations: PASS, FAIL, N/A, COMMENT, PHOTO capture, and CORRECTIVE ACTION.
+5. **Cross-Module Relational Bridges**:
+   - **Incident → CAPA**: 1-click dispatch generates CAPA record with Source = 'INCIDENT' and bidirectional ID reference.
+   - **Audit → CAPA**: 1-click dispatch on audit findings generates CAPA record with Source = 'AUDIT' and updates finding status to 'CAPA_DISPATCHED'.
+   - **Inspection → CAPA**: 1-click dispatch on failed inspection checkpoint generates CAPA record with Source = 'INSPECTION' and links back to the inspection item.
+6. **Automated Verification**:
+   - Validated with dedicated automated test suite `scripts/testPhase6SafetyOps.ts` (55 passing assertions, 0 failures).
+
+## Phase 7: Training, KPI & Permit to Work — Architectural Decisions
+1. **Dedicated Phase 7 Service (`src/services/phase7Service.ts`)**:
+   - Encapsulates multi-store persistence across `training_courses`, `training_records`, `kpi_definitions`, `kpi_records`, and `permit_to_work` IndexedDB stores.
+   - Initialized with realistic enterprise datasets: 13 training courses, realistic employee competence matrix, 12 ISO/OSHA KPI definitions with historical monthly/quarterly/yearly trends, and 10 high-hazard e-PTW disciplines.
+2. **Competency Passport & Expiry Tracking (ISO 45001 §7.2)**:
+   - Dynamic calculation of training validity status:
+     - `VALID`: Valid date in future > 30 days.
+     - `EXPIRING`: Valid date expiring within 30 days.
+     - `EXPIRED`: Expiry date prior to current date.
+     - `NOT COMPLETED`: Course never taken or missing records.
+   - Interactive Competency Matrix: Worker rows vs Course columns with quick certificate inspection modal and renewal triggers.
+3. **Executive KPI Management Engine (ISO 45001 §9.1)**:
+   - 12 Configurable Leading & Lagging Indicators (TRIR, LTIFR, Near Misses, Recordables, Lost Time Injuries, First Aid, Observations, Inspections, Audits, CAPA closure, Training %, PTW Compliance %).
+   - Flexible reporting intervals: Monthly, Quarterly, and Yearly with automatic aggregation and trend line rendering.
+   - Target configuration per KPI with isLowerBetter threshold awareness (green for on-target, red alert for off-target).
+4. **Electronic Permit to Work / e-PTW (ISO 45001 §8.1.2)**:
+   - Covers 10 high-hazard disciplines (Hot Work, Cold Work, Confined Space, Working at Height, Excavation, Lifting, Electrical Isolation, Line Breaking, Radiography, Equipment/Vehicle Entry).
+   - Relational linkage engine connects each permit directly to Projects, Contractors, Phase 5 Risk Assessments, Employees, and Phase 2/4 Controlled Documents.
+   - Atmospheric Gas Testing Interlock: O2, LEL, H2S, CO reading verification against safe thresholds.
+   - LOTO Energy Isolation Points: Multiple tag/lock registrations with verification signoffs.
+   - Digital Multi-Tier Signatures: Issuing Authority, Performing Authority, and Safety Officer with date/time stamps.
+   - Safe Closeout Verification: Worksite restored clean and energy isolations normalized before official closeout.
+5. **Automated Verification**:
+   - Validated with dedicated automated test script `scripts/testPhase7PermitsKpiTraining.ts` (60 passing assertions, 0 failures).
+
+## Phase 8: Dashboard, Reporting & Vector PDF Generation — Architectural Decisions
+1. **Central Reporting Service (`src/services/reportingService.ts`)**:
+   - Single point of aggregation for multi-store telemetry, pulling asynchronously from `document_instances`, `incident_records`, `corrective_actions`, `inspection_records`, `audit_records`, `training_records`, and `permit_to_work`.
+   - Computes 15 live dashboard surveillance indicators with resilient fallback logic.
+2. **True Vector Text-Based PDF Engine (`jsPDF` + `jspdf-autotable`)**:
+   - Rejected HTML screenshot rasterization in favor of crisp, searchable, selectable, and fully scalable vector PDF rendering.
+   - Built a reusable corporate page template with:
+     - ISO compliant Title Block with vector emblem and company metadata.
+     - Document numbering, revision status, and publication date.
+     - Tri-party sign-off blocks (Prepared By, Reviewed By, Approved By).
+     - Dynamic pagination ("Page X of Y") evaluated across arbitrary multi-page documents.
+     - Corporate security classification footer.
+3. **Specialized PDF Generators**:
+   - Tailored formatting for the 5 key compliance dossiers:
+     - HSE Plan (executive summary, 9 core components, stop-work authority statement).
+     - 5x5 ALARP Risk Register (landscape layout, baseline controls, residual score, ALARP criteria).
+     - Incident Investigation Report (metadata, narrative box, 5-Why root cause tree, linked CAPAs).
+     - Multi-Discipline Inspection Report (standard clauses, pass/fail color-coding, field notes).
+     - ISO 45001 Compliance Audit Final Report (scope, criteria, findings register, conformance rating).
+4. **Live Database Command Dashboard (`src/components/dashboard/CommandDashboard.tsx`)**:
+   - 15 live metric tiles connected to database state.
+   - Dual SVG interactive charts for Monthly TRIR/LTIFR and High-Hazard Permit distribution.
+5. **Automated Verification**:
+   - Dedicated test suite `scripts/testPhase8ReportingAndPdfs.ts` verified metrics, catalogue, and generated valid `%PDF-` blobs (45 assertions, 0 failures).
+
+

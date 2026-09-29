@@ -3,6 +3,8 @@ export type Language = 'en' | 'ar';
 export type OperatingUnit = 'Ras Laffan EPC-4' | 'Mesaieed Refinery Unit 3' | 'Al-Khor Pipe Rack Route 9';
 
 export * from './risk';
+export * from './safetyOps';
+export * from './phase7';
 
 export type NavigationPath =
   | 'command-dashboard'
@@ -12,10 +14,13 @@ export type NavigationPath =
   | 'bilingual-document-viewer'
   | 'risk-assessments-alarp'
   | 'incident-investigations'
+  | 'corrective-actions-capa'
   | 'permit-to-work'
   | 'inspections-checklists'
   | 'training-competency-matrix'
   | 'hse-audits-non-conformances'
+  | 'kpi-management'
+  | 'reporting-center'
   | 'organization-roles'
   | 'system-audit-trail';
 
