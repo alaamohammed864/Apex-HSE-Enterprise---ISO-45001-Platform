@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.11.0] - 2026-10-01 — Phase 10: Finalization, Security, RTL/LTR and Quality Assurance
+### Added
+- **Comprehensive Bilingual Localization & RTL/LTR Synchronization**:
+  - Expanded translation dictionary (`src/translations/index.ts`) to 160 typed keys covering Menus, Forms, Tables, Dialogs, Reports, Validation, Notifications, and Documents.
+  - Complete 1:1 parity between English (`en`) and Arabic (`ar`) dictionaries.
+  - Seamless bidirectional HTML root orientation (`dir="rtl"` / `dir="ltr"` and `lang="ar"` / `lang="en"`).
+  - High-legibility Cairo Arabic font integration alongside IBM Plex Sans.
+- **Full-Spectrum Responsive Layout & Mobile Usability**:
+  - Fixed mobile padding bug in `App.tsx` (`lg:pl-72 pl-0` / `lg:pr-72 pr-0`).
+  - Added mobile hamburger menu toggle button in `Header.tsx` and full-width positioning on small screens.
+  - Interactive slide-out sidebar drawer with background blur overlay and auto-dismissal on navigation.
+  - Bounded responsive dialog modals (`max-h-[90vh]`) with scrollable body containers preventing viewport clipping.
+  - Overflow table containers with touch scrolling across all 15 operational safety modules.
+- **Enterprise Security Subsystem (`src/services/securityService.ts`)**:
+  - Input sanitization against Cross-Site Scripting (XSS), script injections, and malicious event handlers.
+  - Filename sanitization protecting against directory traversal attacks (`../`).
+  - Secure file upload validation with MIME type whitelisting, extension filtering, and 10MB file limit.
+  - Fine-grained Role-Based Access Control (RBAC) permission validator.
+  - Automatic cryptographic WORM audit trail logging for all security events.
+- **Organization Structure, Roles & Emergency Preparedness Subsystem (`src/components/admin/OrganizationRolesModule.tsx`)**:
+  - Enterprise user directory management with role assignment, status toggling, and instant account switcher.
+  - Interactive RBAC authority matrix covering all 6 enterprise roles (`HSE_DIRECTOR`, `LEAD_AUDITOR`, `SAFETY_ENGINEER`, `SITE_SUPERVISOR`, `INSPECTOR`, `CLIENT_REP`).
+  - Project assets and operating units directory.
+  - ISO 45001:2018 Clause 8.2 Emergency Response module: 4 assembly muster points, emergency contacts directory, and scheduled evacuation drill simulator.
+- **Automated Verification Test Suite (`scripts/testPhase10FinalizationAndQa.ts`)**:
+  - 56 automated unit and integration tests executing with 100% pass rate.
+
+## [1.10.0] - 2026-09-30 — Phase 9: Document Control, Approval Workflow & Immutable Audit Trail
+### Added
+- **8-State Document Lifecycle (ISO 45001:2018 Clause 7.5.3)**:
+  - Strict lifecycle states: `DRAFT`, `SUBMITTED FOR REVIEW`, `UNDER REVIEW`, `REVISION REQUIRED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED`, `ARCHIVED`.
+  - Bilingual status badges and descriptions in Arabic and English.
+  - Lifecycle state filtering across Document Library and detailed dossier views.
+- **Configurable Multi-Tier Approval Chain (`src/components/documents/ApprovalWorkflowModal.tsx`)**:
+  - Sequential approval pipeline: `Prepared By` -> `HSE Manager` -> `Project Manager` -> `Client` -> `Approved`.
+  - Full audit logging for each approval step: User, Role, Date, Time, Decision, and Comments.
+  - Interactive approval and rejection decision modal with role authorization check and signature stamping.
+- **CRITICAL Revision Immutability Engine (`src/services/documentControlService.ts`)**:
+  - Enforces rule that an approved revision must **NEVER** be overwritten.
+  - Editing an approved/published revision automatically spawns the next revision (`Rev 00` -> `Rev 01` -> `Rev 02`) in `DRAFT` status.
+  - The approved predecessor revision remains 100% frozen in WORM storage with original content snapshot, author metadata, and SHA-256 hash.
+  - Older revisions transition to `SUPERSEDED` upon publication of a newer revision.
+- **Document Comparison & Diff Engine (`src/components/documents/DocumentComparisonModal.tsx`)**:
+  - Side-by-side and unified visual comparison between any two document revisions.
+  - Automatic detection of metadata changes and field-level content changes (`ADDED`, `MODIFIED`, `REMOVED`).
+  - Word-level highlighting of textual differences.
+- **Threaded Comments & Rejection Feedback**:
+  - Itemized comments ledger per document revision with category classification (`GENERAL`, `REVIEW`, `REVISION_NOTE`).
+  - Mandatory rejection reason enforcement when requesting revisions or rejecting approval steps.
+- **Global Cryptographic Audit Log Subsystem (`src/services/auditLogService.ts`, `src/components/audit/GlobalAuditLogModule.tsx`)**:
+  - Immutable Write-Once-Read-Many (WORM) blockchain-style ledger.
+  - Captures all 11 required enterprise action types:
+    `Create`, `Edit`, `Delete`, `Approve`, `Reject`, `Publish`, `Archive`, `Download`, `Print`, `Login`, `Permission changes`.
+  - Cryptographic hash chaining: `prevHash` + `dataHash` -> `blockHash` with pure SHA-256 implementation.
+  - Independent chain integrity verification algorithm checking sequence, previous hash links, and payload tampering.
+  - JSON and CSV export for compliance audits and regulatory submissions.
+- **Automated Verification Test Suite (`scripts/testPhase9DocumentControl.ts`)**:
+  - 64 automated unit and integration tests executing with 100% pass rate.
+
 ## [1.9.0] - 2026-09-29 — Phase 8: Dashboard, Reporting & Vector PDF Generation
 ### Added
 - **Real Database-Driven HSE Command Dashboard (`src/components/dashboard/CommandDashboard.tsx`)**:

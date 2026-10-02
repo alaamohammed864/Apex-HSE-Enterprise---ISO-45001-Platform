@@ -52,3 +52,15 @@
 - **`src/components/formBuilder/CreateDocumentFromTemplateModal.tsx`**: Instantiates living, fully editable controlled documents directly from dynamic templates.
 - **`src/components/documents/DynamicDocumentEditorModal.tsx`**: Allows non-destructive editing of living document field values and revision metadata.
 - **`src/services/templateService.ts`**: Persistent template engine orchestrating CRUD, deep cloning (`duplicateTemplate`), WORM archiving, and non-destructive version updates.
+
+### 4. Document Control & Immutable Audit Trail (Phase 9)
+- **`src/services/documentControlService.ts`**: Implements 8-state document lifecycle, sequential 4-tier approval chains, and strict revision immutability (spawning Rev 00 -> Rev 01 -> Rev 02).
+- **`src/services/auditLogService.ts`**: Pure SHA-256 blockchain-style cryptographic WORM ledger recording all 11 enterprise action types with independent tamper verification.
+- **`src/components/documents/ApprovalWorkflowModal.tsx` & `DocumentComparisonModal.tsx`**: Visual multi-tier sign-off and side-by-side revision diff comparison.
+
+### 5. Enterprise Security, Localization & Responsive Architecture (Phase 10)
+- **`src/services/securityService.ts`**: OWASP-compliant input sanitization, directory traversal protection (`../`), MIME type and extension validation, and automatic security audit event dispatch.
+- **`src/translations/index.ts`**: 160 standardized translation keys ensuring 100% bilingual parity for English (LTR) and Arabic (RTL) without database duplication.
+- **`src/components/admin/OrganizationRolesModule.tsx`**: Enterprise administration, RBAC authority matrix across 6 roles, user directory, project assets, and ISO 45001 §8.2 emergency evacuation plans & muster points.
+- **Responsive Layout (`App.tsx`, `Header.tsx`, `Sidebar.tsx`, `Footer.tsx`)**: Fluid support for mobile, tablet, laptop, and desktop viewports with responsive padding, slide-out sidebar drawer, and bounded dialogs.
+

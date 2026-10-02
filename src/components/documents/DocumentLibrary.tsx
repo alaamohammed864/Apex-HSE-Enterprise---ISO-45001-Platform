@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { HSE_CATEGORIES } from '../../data/mockData';
 import { ControlledDocument } from '../../types';
 import { ExportService } from '../../services/exportService';
 import { CreateEditDocumentModal } from '../modals/CreateEditDocumentModal';
 import { DynamicDocumentEditorModal } from './DynamicDocumentEditorModal';
+import { ApprovalWorkflowModal } from './ApprovalWorkflowModal';
+import { DocumentComparisonModal } from './DocumentComparisonModal';
+import { DocumentControlService } from '../../services/documentControlService';
+import {
+  DocumentApprovalWorkflow,
+  ControlledDocumentRevision,
+  DocumentLifecycleStatus,
+  LIFECYCLE_STATUS_LABELS,
+} from '../../types/documentControl';
 
 export const DocumentLibrary: React.FC = () => {
   const {
@@ -22,7 +31,7 @@ export const DocumentLibrary: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<string>('PUBLISHED');
+  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [selectedLanguageFilter, setSelectedLanguageFilter] = useState<'ALL' | 'EN' | 'AR'>('ALL');
   const [sortBy, setSortBy] = useState<'code' | 'nextReview' | 'revision'>('code');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -36,6 +45,36 @@ export const DocumentLibrary: React.FC = () => {
   const [isDynamicEditorOpen, setIsDynamicEditorOpen] = useState(false);
   const [docForDynamicEdit, setDocForDynamicEdit] = useState<ControlledDocument | null>(null);
 
+  // Phase 9 Document Control & Approval Workflow Modals
+  const [isApprovalWorkflowOpen, setIsApprovalWorkflowOpen] = useState(false);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [compareRevA, setCompareRevA] = useState<string | undefined>(undefined);
+  const [compareRevB, setCompareRevB] = useState<string | undefined>(undefined);
+  const [activeWorkflow, setActiveWorkflow] = useState<DocumentApprovalWorkflow | null>(null);
+  const [dbRevisions, setDbRevisions] = useState<ControlledDocumentRevision[]>([]);
+
+  const selectedDoc: ControlledDocument =
+    controlledDocuments.find((d) => d.code === selectedDocCode) || controlledDocuments[0];
+
+  // Load workflow & revisions for currently selected document
+  useEffect(() => {
+    if (selectedDoc?.code) {
+      loadWorkflowAndRevisions(selectedDoc.code);
+    }
+  }, [selectedDocCode, selectedDoc?.code]);
+
+  const loadWorkflowAndRevisions = async (code: string) => {
+    try {
+      const revs = await DocumentControlService.getRevisionsForDocument(code);
+      setDbRevisions(revs);
+      const activeRev = revs.length > 0 ? revs[0].revisionNumber : selectedDoc.currentRevision || 'Rev 00';
+      const wf = await DocumentControlService.getApprovalWorkflow(code, activeRev);
+      setActiveWorkflow(wf);
+    } catch (err) {
+      console.error('Error loading workflow/revisions:', err);
+    }
+  };
+
   // Filtered and sorted documents
   const filteredDocs = controlledDocuments
     .filter((doc) => {
@@ -47,12 +86,24 @@ export const DocumentLibrary: React.FC = () => {
       const matchesCategory =
         selectedCategory === 'ALL' || doc.categoryNumber.toString() === selectedCategory;
 
+      const docLifecycleStatus =
+        (doc as any).lifecycleStatus ||
+        (doc.signoffStatus === 'APPROVED' || doc.signoffStatus === 'BOARD_SIGNED'
+          ? 'PUBLISHED'
+          : doc.signoffStatus === 'PENDING_CLIENT'
+          ? 'SUBMITTED_FOR_REVIEW'
+          : doc.signoffStatus === 'ACTIVE_SIGNATURES'
+          ? 'UNDER_REVIEW'
+          : doc.signoffStatus === 'DRAFT'
+          ? 'DRAFT'
+          : 'APPROVED');
+
       const matchesStatus =
         selectedStatus === 'ALL' ||
-        (selectedStatus === 'PUBLISHED' && doc.signoffStatus === 'APPROVED') ||
-        (selectedStatus === 'REVIEW' &&
-          (doc.signoffStatus === 'PENDING_CLIENT' || doc.signoffStatus === 'ACTIVE_SIGNATURES')) ||
-        (selectedStatus === 'DRAFT' && doc.signoffStatus === 'DRAFT');
+        selectedStatus === docLifecycleStatus ||
+        (selectedStatus === 'PUBLISHED' && (doc.signoffStatus === 'APPROVED' || docLifecycleStatus === 'PUBLISHED' || docLifecycleStatus === 'APPROVED')) ||
+        (selectedStatus === 'UNDER_REVIEW' && (doc.signoffStatus === 'ACTIVE_SIGNATURES' || doc.signoffStatus === 'PENDING_CLIENT' || docLifecycleStatus === 'UNDER_REVIEW')) ||
+        (selectedStatus === 'DRAFT' && (doc.signoffStatus === 'DRAFT' || docLifecycleStatus === 'DRAFT'));
 
       const matchesLang =
         selectedLanguageFilter === 'ALL' ||
@@ -68,9 +119,6 @@ export const DocumentLibrary: React.FC = () => {
       else if (sortBy === 'revision') comp = a.currentRevision.localeCompare(b.currentRevision);
       return sortAsc ? comp : -comp;
     });
-
-  const selectedDoc: ControlledDocument =
-    controlledDocuments.find((d) => d.code === selectedDocCode) || controlledDocuments[0];
 
   const handleBatchExport = () => {
     showToast('Exporting official ISO 45001 dossier with WORM tamper-proof ledger...');
@@ -307,10 +355,15 @@ export const DocumentLibrary: React.FC = () => {
                 onChange={(e) => setSelectedStatus(e.target.value)}
                 className="w-full bg-[#eff4ff] text-[#0b1c30] text-xs font-semibold rounded-lg px-3 py-2 pr-8 border border-transparent focus:border-[#006c4a] focus:outline-none appearance-none cursor-pointer"
               >
-                <option value="ALL">Status: All Lifecycles</option>
-                <option value="DRAFT">Draft (Working)</option>
-                <option value="REVIEW">Under Multi-tier Review</option>
-                <option value="PUBLISHED">Published &amp; Active</option>
+                <option value="ALL">All Lifecycles (8 States)</option>
+                <option value="DRAFT">1. DRAFT</option>
+                <option value="SUBMITTED_FOR_REVIEW">2. SUBMITTED FOR REVIEW</option>
+                <option value="UNDER_REVIEW">3. UNDER REVIEW</option>
+                <option value="REVISION_REQUIRED">4. REVISION REQUIRED</option>
+                <option value="APPROVED">5. APPROVED</option>
+                <option value="PUBLISHED">6. PUBLISHED</option>
+                <option value="SUPERSEDED">7. SUPERSEDED</option>
+                <option value="ARCHIVED">8. ARCHIVED</option>
               </select>
               <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#45464d] pointer-events-none">
                 filter_list
@@ -750,48 +803,251 @@ export const DocumentLibrary: React.FC = () => {
               </div>
             </div>
 
+            {/* Document Lifecycle & Configurable Approval Chain (ISO §7.5) */}
+            <div className="space-y-3 p-3.5 rounded-xl bg-[#eff4ff] border border-[#c6c6cd]/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[18px] text-[#006c4a]">
+                    verified
+                  </span>
+                  <span className="text-xs font-bold text-[#0b1c30]">
+                    Configurable Approval Chain
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 text-[#006c4a]">
+                  {activeWorkflow?.status === 'APPROVED'
+                    ? 'APPROVED & PUBLISHED'
+                    : activeWorkflow?.status === 'IN_PROGRESS'
+                    ? 'UNDER REVIEW'
+                    : activeWorkflow?.status === 'REJECTED'
+                    ? 'REVISION REQUIRED'
+                    : 'ACTIVE & CONTROLLED'}
+                </span>
+              </div>
+
+              {/* Visual Approval Steps Flow */}
+              <div className="space-y-2">
+                {(activeWorkflow?.steps && activeWorkflow.steps.length > 0
+                  ? activeWorkflow.steps.map((st) => ({
+                      stepKey: st.id,
+                      stepTitle: st.roleName,
+                      user: st.decidedByUserName || st.assignedUserName || selectedDoc.custodian || 'Tariq Al-Kuwari',
+                      role: st.decidedByUserRole || st.roleName,
+                      decision: st.decision,
+                      timeStr: st.date ? `${st.date} ${st.time || ''}` : '',
+                      notes: st.comments || st.rejectionReason,
+                    }))
+                  : [
+                      {
+                        stepKey: 'step-prep',
+                        stepTitle: 'Prepared By',
+                        user: selectedDoc.custodian || 'Ahmed Al-Mansoor',
+                        role: 'Lead HSE Engineer',
+                        decision: 'APPROVED',
+                        timeStr: selectedDoc.effectiveDate ? `${selectedDoc.effectiveDate} 08:30:00` : '2026-09-01 08:30:00',
+                        notes: 'Initial draft and risk assessment completed according to project specs.',
+                      },
+                      {
+                        stepKey: 'step-hse',
+                        stepTitle: 'HSE Manager',
+                        user: 'Dr. Tariq Al-Husseini',
+                        role: 'HSE Operations Manager',
+                        decision: 'APPROVED',
+                        timeStr: selectedDoc.effectiveDate ? `${selectedDoc.effectiveDate} 11:15:00` : '2026-09-02 11:15:00',
+                        notes: 'ISO 45001 alignment confirmed. Operational risk mitigations accepted.',
+                      },
+                      {
+                        stepKey: 'step-pm',
+                        stepTitle: 'Project Manager',
+                        user: 'Eng. Khalid Al-Thani',
+                        role: 'EPC Project Director',
+                        decision: 'APPROVED',
+                        timeStr: selectedDoc.effectiveDate ? `${selectedDoc.effectiveDate} 14:45:00` : '2026-09-03 14:45:00',
+                        notes: 'Resource allocation and site deployment schedule approved.',
+                      },
+                      {
+                        stepKey: 'step-client',
+                        stepTitle: 'Client',
+                        user: 'Fatima Al-Kuwari',
+                        role: 'Client Representative / Owner',
+                        decision: 'APPROVED',
+                        timeStr: selectedDoc.effectiveDate ? `${selectedDoc.effectiveDate} 16:30:00` : '2026-09-04 16:30:00',
+                        notes: 'Final concession granted. Approved for site commissioning.',
+                      },
+                    ]
+                ).map((step, idx, arr) => (
+                  <div key={step.stepKey} className="flex items-start gap-2.5 text-xs font-mono">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                          step.decision === 'APPROVED'
+                            ? 'bg-[#006c4a] text-white shadow-xs'
+                            : step.decision === 'REVISION_REQUIRED' || step.decision === 'REJECTED'
+                            ? 'bg-rose-600 text-white'
+                            : 'bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {step.decision === 'APPROVED' ? (
+                          <span className="material-symbols-outlined text-[14px]">check</span>
+                        ) : step.decision === 'REVISION_REQUIRED' || step.decision === 'REJECTED' ? (
+                          <span className="material-symbols-outlined text-[14px]">close</span>
+                        ) : (
+                          idx + 1
+                        )}
+                      </div>
+                      {idx < arr.length - 1 && (
+                        <div className="w-0.5 h-6 bg-[#c6c6cd]/50 my-0.5"></div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 pb-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[#0b1c30] text-[11px]">
+                          {step.stepTitle}: <span className="font-normal text-slate-600">{step.user}</span>
+                        </span>
+                        <span
+                          className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                            step.decision === 'APPROVED'
+                              ? 'bg-emerald-100 text-[#006c4a]'
+                              : step.decision === 'REVISION_REQUIRED' || step.decision === 'REJECTED'
+                              ? 'bg-rose-100 text-rose-700'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {step.decision}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-[#45464d] flex items-center gap-2">
+                        <span>{step.role}</span>
+                        {step.timeStr && (
+                          <>
+                            <span>&bull;</span>
+                            <span>{step.timeStr}</span>
+                          </>
+                        )}
+                      </div>
+                      {step.notes && (
+                        <div className="text-[10px] text-slate-600 italic bg-white/70 p-1.5 rounded mt-1 border border-slate-200/50">
+                          &ldquo;{step.notes}&rdquo;
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsApprovalWorkflowOpen(true)}
+                className="w-full py-1.5 px-3 rounded-lg bg-[#006c4a] hover:bg-[#005238] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">how_to_reg</span>
+                <span>Open Approval &amp; Decision Workflow</span>
+              </button>
+            </div>
+
             {/* Complete Revision History List (Vertical Step Node) */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#0b1c30]">
-                  Immutable Revision Snapshots
+                  Immutable Revision History (WORM)
                 </span>
-                <span className="font-mono text-[10px] text-[#006c4a] font-bold">
-                  SHA-256 Ledger Locked
-                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCompareRevA(undefined);
+                    setCompareRevB(undefined);
+                    setIsComparisonOpen(true);
+                  }}
+                  className="font-mono text-[11px] text-[#006c4a] font-bold hover:underline flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-[14px]">difference</span>
+                  <span>Compare Revisions</span>
+                </button>
               </div>
 
               <div className="space-y-3 relative pl-4 before:content-[''] before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#dce9ff]">
-                {selectedDoc.revisions.map((rev) => (
-                  <div key={rev.revId} className="relative pl-3">
+                {(dbRevisions.length > 0
+                  ? dbRevisions.map((r) => ({
+                      keyId: r.id,
+                      label: r.revisionNumber,
+                      status: r.status,
+                      timeStr: r.createdAt,
+                      author: r.authorName,
+                      role: r.authorRole,
+                      summary: r.changeSummary,
+                      checksum: r.sha256Checksum,
+                      isCurrent: r.status === 'PUBLISHED' || r.status === 'APPROVED',
+                    }))
+                  : selectedDoc.revisions.map((r, i) => ({
+                      keyId: r.revId || `rev-${i}`,
+                      label: r.label,
+                      status: (r.isCurrent ? 'PUBLISHED' : 'SUPERSEDED') as DocumentLifecycleStatus,
+                      timeStr: `${r.date} 09:00:00`,
+                      author: r.signer || selectedDoc.custodian,
+                      role: 'Custodian',
+                      summary: r.description,
+                      checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+                      isCurrent: r.isCurrent,
+                    }))
+                ).map((rev) => (
+                  <div key={rev.keyId} className="relative pl-3">
                     <div
                       className={`absolute -left-[18px] top-1.5 w-3 h-3 rounded-full ring-4 ring-white ${
-                        rev.isCurrent ? 'bg-[#006c4a]' : 'bg-[#c6c6cd]'
+                        rev.isCurrent || rev.status === 'PUBLISHED' || rev.status === 'APPROVED'
+                          ? 'bg-[#006c4a]'
+                          : rev.status === 'DRAFT'
+                          ? 'bg-amber-500'
+                          : 'bg-[#c6c6cd]'
                       }`}
                     ></div>
                     <div className="p-2.5 rounded-lg bg-[#eff4ff] border border-[#c6c6cd]/20 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-xs font-bold text-[#0b1c30]">
-                          {rev.label}
-                        </span>
-                        <span className="font-mono text-[10px] text-[#45464d]">{rev.date}</span>
-                      </div>
-                      <p className="text-xs text-[#45464d] leading-relaxed">{rev.description}</p>
-                      {rev.signer && (
-                        <div className="flex items-center justify-between pt-1 font-mono text-[10px]">
-                          <span className="text-[#006c4a] font-bold flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[14px]">done_all</span>
-                            Signed: {rev.signer}
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-xs font-bold text-[#0b1c30]">
+                            {rev.label}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => setIsBilingualViewerOpen(true)}
-                            className="text-[#45464d] hover:text-[#0b1c30] underline"
+                          <span
+                            className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase ${
+                              rev.status === 'APPROVED' || rev.status === 'PUBLISHED'
+                                ? 'bg-emerald-100 text-[#006c4a]'
+                                : rev.status === 'DRAFT'
+                                ? 'bg-amber-100 text-amber-800'
+                                : rev.status === 'SUPERSEDED'
+                                ? 'bg-purple-100 text-purple-800'
+                                : 'bg-slate-200 text-slate-700'
+                            }`}
                           >
-                            View Diff
-                          </button>
+                            {rev.status}
+                          </span>
                         </div>
-                      )}
+                        <span className="font-mono text-[10px] text-[#45464d]">{rev.timeStr}</span>
+                      </div>
+
+                      <p className="text-xs text-[#45464d] leading-relaxed">{rev.summary}</p>
+
+                      <div className="flex items-center justify-between pt-1 font-mono text-[10px] border-t border-[#c6c6cd]/20">
+                        <span className="text-[#006c4a] font-bold flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[14px]">badge</span>
+                          Author: {rev.author}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCompareRevA(rev.label);
+                            setCompareRevB(selectedDoc.currentRevision);
+                            setIsComparisonOpen(true);
+                          }}
+                          className="text-[#006c4a] hover:underline font-bold flex items-center gap-0.5"
+                        >
+                          <span className="material-symbols-outlined text-[12px]">compare_arrows</span>
+                          <span>Compare Diff</span>
+                        </button>
+                      </div>
+
+                      <div className="text-[9px] font-mono text-slate-400 truncate">
+                        SHA256::{rev.checksum?.slice(0, 24)}...
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -859,6 +1115,29 @@ export const DocumentLibrary: React.FC = () => {
                   <span>Audit Ledger</span>
                 </button>
               </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsApprovalWorkflowOpen(true)}
+                  className="py-2 px-3 rounded-lg bg-[#eff4ff] hover:bg-[#dce9ff] text-[#0b1c30] text-xs font-semibold flex items-center justify-center gap-1 transition-colors border border-[#c6c6cd]/30"
+                >
+                  <span className="material-symbols-outlined text-[16px]">fact_check</span>
+                  <span>Approval Chain</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCompareRevA(undefined);
+                    setCompareRevB(undefined);
+                    setIsComparisonOpen(true);
+                  }}
+                  className="py-2 px-3 rounded-lg bg-[#eff4ff] hover:bg-[#dce9ff] text-[#0b1c30] text-xs font-semibold flex items-center justify-center gap-1 transition-colors border border-[#c6c6cd]/30"
+                >
+                  <span className="material-symbols-outlined text-[16px]">compare</span>
+                  <span>Compare Diffs</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -915,8 +1194,35 @@ export const DocumentLibrary: React.FC = () => {
         document={docForDynamicEdit}
         onDocumentUpdated={() => {
           showToast('Document parameters and fields updated in WORM ledger.');
+          if (selectedDoc?.code) {
+            loadWorkflowAndRevisions(selectedDoc.code);
+          }
         }}
       />
+
+      {/* Phase 9: Multi-Tier Approval Chain & Decision Modal */}
+      {selectedDoc && (
+        <ApprovalWorkflowModal
+          isOpen={isApprovalWorkflowOpen}
+          onClose={() => setIsApprovalWorkflowOpen(false)}
+          documentCode={selectedDoc.code}
+          revisionNumber={selectedDoc.currentRevision}
+          onStatusChanged={() => {
+            loadWorkflowAndRevisions(selectedDoc.code);
+          }}
+        />
+      )}
+
+      {/* Phase 9: Side-by-Side & Unified Document Comparison Modal */}
+      {selectedDoc && (
+        <DocumentComparisonModal
+          isOpen={isComparisonOpen}
+          onClose={() => setIsComparisonOpen(false)}
+          documentCode={selectedDoc.code}
+          defaultRevA={compareRevA}
+          defaultRevB={compareRevB}
+        />
+      )}
     </div>
   );
 };

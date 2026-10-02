@@ -663,3 +663,47 @@ Every field configured inside a template section supports:
 - `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 - `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 
+---
+
+## 9. Security, RBAC & Emergency Preparedness (Phase 10)
+
+### Table: `system_users`
+- `id`: VARCHAR(50) PRIMARY KEY (e.g. `usr-001`)
+- `name`: VARCHAR(150) NOT NULL
+- `name_ar`: VARCHAR(150) NOT NULL
+- `email`: VARCHAR(255) UNIQUE NOT NULL
+- `role`: VARCHAR(30) NOT NULL ('HSE_DIRECTOR', 'LEAD_AUDITOR', 'SAFETY_ENGINEER', 'SITE_SUPERVISOR', 'INSPECTOR', 'CLIENT_REP')
+- `role_title_en`: VARCHAR(150) NOT NULL
+- `role_title_ar`: VARCHAR(150) NOT NULL
+- `badge_number`: VARCHAR(50) UNIQUE NOT NULL
+- `operating_unit`: VARCHAR(150) NOT NULL
+- `permissions`: JSONB (`string[]`)
+- `status`: VARCHAR(20) DEFAULT 'ACTIVE' ('ACTIVE', 'SUSPENDED')
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `emergency_muster_points`
+- `id`: VARCHAR(50) PRIMARY KEY (e.g. `MP-01`)
+- `name_en`: VARCHAR(150) NOT NULL
+- `name_ar`: VARCHAR(150) NOT NULL
+- `zone`: VARCHAR(150) NOT NULL
+- `capacity`: INTEGER NOT NULL
+- `warden`: VARCHAR(100) NOT NULL
+- `warden_radio`: VARCHAR(100) NOT NULL
+- `status`: VARCHAR(30) DEFAULT 'CLEAR' ('CLEAR', 'ACTIVE_MUSTERING', 'EVACUATING')
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+- `updated_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+### Table: `emergency_drill_records`
+- `id`: VARCHAR(50) PRIMARY KEY (e.g. `DRILL-2026-03`)
+- `drill_type`: VARCHAR(50) NOT NULL ('EVACUATION', 'FIRE', 'GAS_LEAK', 'CONFINED_SPACE_RESCUE')
+- `site_id`: VARCHAR(50) NOT NULL
+- `evacuation_time_seconds`: INTEGER NOT NULL
+- `personnel_accounted_for`: INTEGER NOT NULL
+- `total_headcount`: INTEGER NOT NULL
+- `lead_observer`: VARCHAR(100) NOT NULL
+- `deficiencies_noted`: TEXT
+- `iso_conformance_rating`: VARCHAR(20) NOT NULL
+- `created_at`: TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+

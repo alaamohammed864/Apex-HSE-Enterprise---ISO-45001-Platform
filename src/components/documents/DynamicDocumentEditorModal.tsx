@@ -5,6 +5,8 @@ import { TemplateManagementService } from '../../services/templateService';
 import { DynamicFieldRenderer } from './DynamicFieldRenderer';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
+import { DocumentControlService } from '../../services/documentControlService';
+import { AuditLogService } from '../../services/auditLogService';
 
 interface DynamicDocumentEditorModalProps {
   isOpen: boolean;
@@ -31,6 +33,22 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
   const [docTitleAr, setDocTitleAr] = useState(document.titleAr || '');
   const [changeSummary, setChangeSummary] = useState('Updated operational parameters and field verification');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLockedApproved, setIsLockedApproved] = useState(false);
+  const [nextRevLabel, setNextRevLabel] = useState('Rev 01');
+
+  // Check if current revision is approved/published
+  useEffect(() => {
+    const isApprovedOrPublished =
+      document.signoffStatus === 'APPROVED' ||
+      document.signoffStatusLabel === 'ACTIVE & CONTROLLED';
+    setIsLockedApproved(isApprovedOrPublished);
+
+    // Calculate next revision format Rev 00 -> Rev 01 -> Rev 02
+    const currentRevMatch = document.currentRevision.match(/(\d+)/);
+    const currentNum = currentRevMatch ? parseInt(currentRevMatch[1], 10) : 0;
+    const nextNum = currentNum + 1;
+    setNextRevLabel(`Rev ${nextNum < 10 ? '0' + nextNum : nextNum}`);
+  }, [document]);
 
   // Load document content and matching dynamic template
   useEffect(() => {
@@ -80,6 +98,20 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
     e.preventDefault();
     setIsSaving(true);
     try {
+      // Execute strict Phase 9 Revision Immutability rule:
+      // If document is approved, never overwrite! Create new revision in DRAFT state.
+      const saveResult = await DocumentControlService.editOrCreateDocumentRevision({
+        documentId: `doc-${document.code.toLowerCase()}`,
+        documentCode: document.code,
+        title: docTitle,
+        changeSummary: changeSummary.trim() || 'Operational parameters updated',
+        contentData: fieldValues,
+        authorId: currentUser.id || 'USR-CURRENT',
+        authorName: currentUser.name,
+        authorRole: currentUser.role,
+      });
+
+      // Also persist to template content table
       await TemplateManagementService.updateDocumentContent(
         document.code,
         fieldValues,
@@ -87,19 +119,39 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
         changeSummary
       );
 
-      showToast(
-        language === 'ar'
-          ? `تم حفظ وتحديث بيانات الوثيقة: ${document.code}`
-          : `Saved changes to living document: ${document.code}`
-      );
+      // Audit log the edit action
+      await AuditLogService.logAction({
+        action: 'Edit',
+        entityType: 'DOCUMENT',
+        entityId: document.code,
+        entityTitle: `${docTitle} (${saveResult.revision.revisionNumber})`,
+        details: isLockedApproved
+          ? `Created new revision ${saveResult.revision.revisionNumber} (DRAFT) as predecessor was approved/locked. ${changeSummary}`
+          : `Updated DRAFT revision ${saveResult.revision.revisionNumber}. ${changeSummary}`,
+        actorName: currentUser.name,
+        actorRole: currentUser.role,
+        isoClause: document.clause || 'ISO 45001 §7.5.3',
+      });
+
+      if (isLockedApproved) {
+        showToast(
+          language === 'ar'
+            ? `تم إنشاء مراجعة جديدة (${saveResult.revision.revisionNumber}) للمراجعة؛ النسخة المعتمدة محفوظة دون تعديل.`
+            : `Created new revision ${saveResult.revision.revisionNumber} (DRAFT). Previous approved revision is safely preserved!`
+        );
+      } else {
+        showToast(
+          language === 'ar'
+            ? `تم حفظ التعديلات على المراجعة: ${saveResult.revision.revisionNumber}`
+            : `Saved updates to revision ${saveResult.revision.revisionNumber}`
+        );
+      }
 
       if (onDocumentUpdated) onDocumentUpdated();
       onClose();
     } catch (err: any) {
-      // If document wasn't registered in instances table yet, save anyway
-      showToast(language === 'ar' ? 'تم تحديث الوثيقة بنجاح' : 'Updated document values successfully');
-      if (onDocumentUpdated) onDocumentUpdated();
-      onClose();
+      console.error('Save failed:', err);
+      showToast(language === 'ar' ? 'فشل الحفظ: ' + err.message : 'Save failed: ' + err.message);
     } finally {
       setIsSaving(false);
     }
@@ -114,7 +166,7 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
             <span className="material-symbols-outlined text-[#82f5c1] text-[22px]">edit_note</span>
             <div>
               <h3 className="font-bold text-base leading-tight">
-                {language === 'ar' ? 'تعديل وثيقة السلامة الحية' : 'Edit Living Controlled Document'}
+                {language === 'ar' ? 'تعديل وثيقة السلامة الحية وضبط المراجعات' : 'Edit Living Document & Revision Control'}
               </h3>
               <p className="text-[11px] text-slate-300 font-mono">
                 {document.code} &bull; {document.currentRevision} &bull; ISO {document.clause}
@@ -130,6 +182,26 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
           </button>
         </div>
 
+        {/* Immutability Banner for Approved Revisions */}
+        {isLockedApproved && (
+          <div className="bg-[#fff8e1] border-b border-[#ffe082] px-6 py-3 flex items-start gap-3 text-xs text-[#8d6e63]">
+            <span className="material-symbols-outlined text-[#f57f17] text-[20px] flex-shrink-0 mt-0.5">
+              lock
+            </span>
+            <div>
+              <div className="font-bold text-[#b78103]">
+                CRITICAL REVISION INTEGRITY RULE (ISO 45001 Clause 7.5.3)
+              </div>
+              <p className="text-[11px] text-[#5d4037] leading-relaxed">
+                Current revision <strong>{document.currentRevision}</strong> is APPROVED and LOCKED.
+                An approved revision must <strong>NEVER</strong> be overwritten. Saving changes will automatically
+                create new revision <strong>{nextRevLabel}</strong> in <span className="font-bold text-[#d97706]">DRAFT</span> status,
+                preserving the approved baseline for complete auditability.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Content Form */}
         <form onSubmit={handleSaveDocument} className="p-6 overflow-y-auto space-y-6 flex-1">
           {isLoading ? (
@@ -144,8 +216,10 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
                   <span className="text-xs font-bold uppercase tracking-wider text-[#0b1c30] font-mono">
                     Document Metadata &amp; Revision Control
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-[#006c4a] text-[10px] font-bold font-mono">
-                    EDITABLE LIVING ARTIFACT
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
+                    isLockedApproved ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-[#006c4a]'
+                  }`}>
+                    {isLockedApproved ? `WILL CREATE ${nextRevLabel}` : 'EDITING DRAFT'}
                   </span>
                 </div>
 
@@ -175,7 +249,7 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Revision Change Summary / Justification
+                    Revision Change Summary / Justification <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -183,8 +257,11 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
                     value={changeSummary}
                     onChange={(e) => setChangeSummary(e.target.value)}
                     className="w-full bg-white text-xs rounded-lg px-3 py-2 border border-slate-300 focus:border-[#006c4a] focus:outline-none"
-                    placeholder="Describe specific changes or field updates..."
+                    placeholder="E.g., Updated section 4 hazard mitigations and emergency response contacts"
                   />
+                  <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">
+                    Recorded permanently in the immutable revision log &amp; audit trail.
+                  </span>
                 </div>
               </div>
 
@@ -236,7 +313,11 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
           <div className="pt-4 flex items-center justify-between border-t border-slate-200">
             <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
               <span className="w-2 h-2 rounded-full bg-[#006c4a]"></span>
-              <span>Living Form Data &bull; Non-destructive Draft Persistence</span>
+              <span>
+                {isLockedApproved
+                  ? `Immutability Protected: Spawns ${nextRevLabel} (DRAFT)`
+                  : 'Updating Current Revision (DRAFT)'}
+              </span>
             </div>
 
             <div className="flex items-center gap-3">
@@ -252,8 +333,14 @@ export const DynamicDocumentEditorModal: React.FC<DynamicDocumentEditorModalProp
                 disabled={isSaving}
                 className="px-5 py-2.5 rounded-lg bg-[#006c4a] hover:bg-[#005238] text-white text-xs font-bold shadow-md flex items-center gap-2 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-[16px]">save</span>
-                {isSaving ? 'Saving Changes...' : 'Save & Update Document'}
+                <span className="material-symbols-outlined text-[16px]">
+                  {isLockedApproved ? 'add_circle' : 'save'}
+                </span>
+                {isSaving
+                  ? 'Saving Revision...'
+                  : isLockedApproved
+                  ? `Save as New Revision (${nextRevLabel})`
+                  : 'Save Revision'}
               </button>
             </div>
           </div>

@@ -6,8 +6,8 @@ export const Footer: React.FC = () => {
 
   return (
     <footer
-      className={`w-full bg-[#ffffff] px-6 py-2 flex items-center justify-between shadow-[0_-1px_6px_rgba(0,0,0,0.02)] border-t border-[#c6c6cd]/30 text-[11px] font-mono transition-all z-30 ${
-        language === 'ar' ? 'pr-72' : 'pl-72'
+      className={`w-full bg-[#ffffff] px-4 sm:px-6 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 shadow-[0_-1px_6px_rgba(0,0,0,0.02)] border-t border-[#c6c6cd]/30 text-[11px] font-mono transition-all z-30 ${
+        language === 'ar' ? 'lg:pr-72 pr-4 pl-4' : 'lg:pl-72 pl-4 pr-4'
       }`}
     >
       <div className="flex items-center gap-4 flex-wrap">

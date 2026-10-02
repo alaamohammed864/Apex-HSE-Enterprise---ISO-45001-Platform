@@ -16,6 +16,8 @@ import { TrainingManagementModule } from './components/training/TrainingManageme
 import { KpiManagementModule } from './components/kpis/KpiManagementModule';
 import { PtwManagementModule } from './components/ptw/PtwManagementModule';
 import { ReportingCenterModule } from './components/reports/ReportingCenterModule';
+import { GlobalAuditLogModule } from './components/audit/GlobalAuditLogModule';
+import { OrganizationRolesModule } from './components/admin/OrganizationRolesModule';
 import { GenericIsoView } from './components/views/GenericIsoView';
 import { NewRecordModal } from './components/modals/NewRecordModal';
 import { AuditLedgerModal } from './components/modals/AuditLedgerModal';
@@ -68,6 +70,10 @@ const AppContent: React.FC = () => {
         return <KpiManagementModule />;
       case 'reporting-center':
         return <ReportingCenterModule />;
+      case 'system-audit-trail':
+        return <GlobalAuditLogModule />;
+      case 'organization-roles':
+        return <OrganizationRolesModule />;
       case 'bilingual-document-viewer':
         return (
           <div className="p-6">
@@ -91,7 +97,7 @@ const AppContent: React.FC = () => {
 
       <main
         className={`flex-1 w-full pt-16 pb-12 transition-all ${
-          language === 'ar' ? 'pr-72 pl-0' : 'pl-72 pr-0'
+          language === 'ar' ? 'lg:pr-72 pr-0 pl-0' : 'lg:pl-72 pl-0 pr-0'
         }`}
       >
         {renderActiveView()}

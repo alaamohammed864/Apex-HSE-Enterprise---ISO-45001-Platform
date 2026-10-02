@@ -51,6 +51,9 @@ interface AppContextType {
   setIsPtwBoardOpen: (open: boolean) => void;
   isBilingualViewerOpen: boolean;
   setIsBilingualViewerOpen: (open: boolean) => void;
+  isMobileSidebarOpen: boolean;
+  setIsMobileSidebarOpen: (open: boolean) => void;
+  toggleMobileSidebar: () => void;
   t: typeof translations.en;
 }
 
@@ -59,7 +62,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>('light');
-  const [activeNav, setActiveNav] = useState<NavigationPath>('command-dashboard');
+  const [activeNav, setActiveNavState] = useState<NavigationPath>('command-dashboard');
   const [operatingUnit, setOperatingUnit] = useState<OperatingUnit>('Ras Laffan EPC-4');
   const [riskAssessments, setRiskAssessments] = useState<RiskAssessment[]>(INITIAL_RISK_ASSESSMENTS);
   const [controlledDocuments, setControlledDocuments] = useState<ControlledDocument[]>(INITIAL_CONTROLLED_DOCUMENTS);
@@ -73,6 +76,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAuditLedgerOpen, setIsAuditLedgerOpen] = useState(false);
   const [isPtwBoardOpen, setIsPtwBoardOpen] = useState(false);
   const [isBilingualViewerOpen, setIsBilingualViewerOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const setActiveNav = (path: NavigationPath) => {
+    setActiveNavState(path);
+    setIsMobileSidebarOpen(false); // Auto-close drawer on mobile navigation
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -211,6 +224,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsPtwBoardOpen,
         isBilingualViewerOpen,
         setIsBilingualViewerOpen,
+        isMobileSidebarOpen,
+        setIsMobileSidebarOpen,
+        toggleMobileSidebar,
         t,
       }}
     >

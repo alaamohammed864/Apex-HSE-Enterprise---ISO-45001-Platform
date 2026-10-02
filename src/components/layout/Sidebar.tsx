@@ -3,7 +3,16 @@ import { useApp } from '../../context/AppContext';
 import { NavigationPath, OperatingUnit } from '../../types';
 
 export const Sidebar: React.FC = () => {
-  const { activeNav, setActiveNav, operatingUnit, setOperatingUnit, t, language } = useApp();
+  const {
+    activeNav,
+    setActiveNav,
+    operatingUnit,
+    setOperatingUnit,
+    t,
+    language,
+    isMobileSidebarOpen,
+    setIsMobileSidebarOpen,
+  } = useApp();
   const [isUnitDropdownOpen, setIsUnitDropdownOpen] = useState(false);
 
   const navItems: {
@@ -142,31 +151,59 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside
-      className={`fixed top-0 h-full w-72 bg-[#eff4ff] shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-y-auto border-r border-[#c6c6cd]/30 ${
-        language === 'ar' ? 'right-0 border-l border-r-0' : 'left-0'
-      }`}
-    >
-      <div className="flex flex-col">
-        {/* Brand Header */}
-        <div className="h-16 px-6 flex items-center gap-2 bg-[#ffffff] border-b border-[#c6c6cd]/20">
-          <div className="w-8 h-8 rounded-lg bg-[#006c4a] flex items-center justify-center text-white shadow-sm flex-shrink-0">
-            <span className="material-symbols-outlined text-[20px]">shield_with_heart</span>
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1">
-              <span className="font-bold text-[18px] tracking-tight text-[#0b1c30]">
-                {t.appName}
-              </span>
-              <span className="font-mono text-[10px] uppercase px-1 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30] font-semibold">
-                {t.appVersion}
-              </span>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden animate-in fade-in transition-opacity"
+          onClick={() => setIsMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`fixed top-0 h-full w-72 bg-[#eff4ff] shadow-2xl lg:shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-y-auto border-r border-[#c6c6cd]/30 transition-transform duration-300 ease-in-out ${
+          language === 'ar'
+            ? `right-0 border-l border-r-0 ${
+                isMobileSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+              }`
+            : `left-0 ${
+                isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+              }`
+        }`}
+      >
+        <div className="flex flex-col">
+          {/* Brand Header */}
+          <div className="h-16 px-6 flex items-center justify-between bg-[#ffffff] border-b border-[#c6c6cd]/20">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#006c4a] flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                <span className="material-symbols-outlined text-[20px]">shield_with_heart</span>
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                  <span className="font-bold text-[18px] tracking-tight text-[#0b1c30]">
+                    {t.appName}
+                  </span>
+                  <span className="font-mono text-[10px] uppercase px-1 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30] font-semibold">
+                    {t.appVersion}
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-[#006c4a] font-bold">
+                  {t.isoStandard}
+                </span>
+              </div>
             </div>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[#006c4a] font-bold">
-              {t.isoStandard}
-            </span>
+
+            {/* Mobile Close Button */}
+            <button
+              type="button"
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-colors"
+              aria-label="Close Navigation"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
           </div>
-        </div>
 
         {/* Operating Unit Switcher */}
         <div className="px-6 py-2 bg-[#e5eeff] relative">
@@ -274,5 +311,6 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
     </aside>
+    </>
   );
 };

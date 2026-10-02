@@ -12,6 +12,35 @@ export const translations = {
     isoValidated: "ISO 45001 VALIDATED",
     secLevel: "SEC-L3",
 
+    // Common Actions
+    save: "Save",
+    cancel: "Cancel",
+    close: "Close",
+    delete: "Delete",
+    edit: "Edit",
+    create: "Create",
+    export: "Export",
+    download: "Download",
+    print: "Print",
+    search: "Search",
+    filter: "Filter",
+    clear: "Clear",
+    confirm: "Confirm",
+    back: "Back",
+    next: "Next",
+    submit: "Submit",
+    refresh: "Refresh",
+    view: "View",
+    compare: "Compare",
+    approve: "Approve",
+    reject: "Reject",
+    publish: "Publish",
+    archive: "Archive",
+    loading: "Loading...",
+    noRecordsFound: "No records found matching criteria.",
+    noDataAvailable: "No data available in this section.",
+    showingResults: "Showing results",
+
     // Nav
     coreMission: "Core Mission",
     commandDashboard: "Command Dashboard",
@@ -104,6 +133,57 @@ export const translations = {
     specializedHseModules: "Specialized HSE Modules",
     standardPrimitives: "Standard Primitives",
     propertyInspector: "Property Inspector",
+
+    // Document Lifecycles
+    statusDraft: "DRAFT",
+    statusSubmitted: "SUBMITTED FOR REVIEW",
+    statusUnderReview: "UNDER REVIEW",
+    statusRevisionRequired: "REVISION REQUIRED",
+    statusApproved: "APPROVED",
+    statusPublished: "PUBLISHED",
+    statusSuperseded: "SUPERSEDED",
+    statusArchived: "ARCHIVED",
+
+    // Operational Safety Modules
+    incidentsTitle: "Incident Investigation & 5-Why Root Cause Analysis",
+    capaTitle: "Corrective and Preventive Actions (CAPA) Register",
+    inspectionsTitle: "Inspection Checklists & Field Auditing",
+    auditsTitle: "ISO 45001 Compliance Audits & Non-Conformances",
+    trainingTitle: "Training Competency Matrix & Certifications",
+    kpiTitle: "HSE Leading & Lagging Performance Indicators",
+    ptwTitle: "Permit to Work (PTW) Live Execution Board",
+    emergencyPlansTitle: "Emergency Preparedness, Evacuation & Response Plans",
+
+    // Emergency Preparedness Elements
+    musterPoints: "Emergency Assembly & Muster Points",
+    evacuationDrills: "Scheduled Evacuation Drills",
+    emergencyContacts: "Incident Command Directory",
+    fireWardens: "Certified Fire Wardens",
+    firstAiders: "First Aid Responders",
+
+    // Organization & RBAC
+    organizationTitle: "Organization Structure, Roles & RBAC Matrix",
+    organizationSubtitle: "Enterprise user management, granular role-based access control, and project asset authorizations.",
+    addUser: "+ Add System User",
+    roleDirector: "Corporate HSE Director",
+    roleAuditor: "Lead ISO 45001 Auditor",
+    roleEngineer: "Lead Safety & Risk Engineer",
+    roleSupervisor: "Site Area Supervisor",
+    roleInspector: "HSE Field Inspector",
+    roleClient: "Client Representative",
+    badgeId: "Badge ID",
+    emailAddress: "Email Address",
+    authorizedPermissions: "Authorized Permissions",
+    securityAuditTrail: "Security Audit Trail & Session Ledger",
+
+    // Validation & Alerts
+    fieldRequired: "This field is required.",
+    invalidEmail: "Please enter a valid email address.",
+    fileTooLarge: "File size exceeds 10MB maximum limit.",
+    unsupportedFormat: "File format not supported. Please use PDF, DOCX, XLSX, PNG, or JPG.",
+    validationPassed: "All validation constraints satisfied.",
+    accessDenied: "Access denied. Your role does not possess required authorization.",
+    actionCompleted: "Operation successfully executed and recorded in immutable audit log."
   },
 
   ar: {
@@ -118,6 +198,35 @@ export const translations = {
     userName: "د. طارق المنصور",
     isoValidated: "معتمد وفق ISO 45001",
     secLevel: "أمان SEC-L3",
+
+    // Common Actions
+    save: "حفظ",
+    cancel: "إلغاء",
+    close: "إغلاق",
+    delete: "حذف",
+    edit: "تعديل",
+    create: "إنشاء",
+    export: "تصدير",
+    download: "تحميل",
+    print: "طباعة",
+    search: "بحث",
+    filter: "تصفية",
+    clear: "مسح",
+    confirm: "تأكيد",
+    back: "رجوع",
+    next: "التالي",
+    submit: "إرسال",
+    refresh: "تحديث",
+    view: "عرض",
+    compare: "مقارنة",
+    approve: "اعتماد",
+    reject: "رفض",
+    publish: "نشر",
+    archive: "أرشفة",
+    loading: "جاري التحميل...",
+    noRecordsFound: "لم يتم العثور على سجلات مطابقة لمعايير البحث.",
+    noDataAvailable: "لا توجد بيانات متوفرة في هذا القسم حاليًا.",
+    showingResults: "عرض النتائج",
 
     // Nav
     coreMission: "المهام والعمليات الرئيسية",
@@ -211,5 +320,56 @@ export const translations = {
     specializedHseModules: "وحدات السلامة المتخصصة",
     standardPrimitives: "عناصر الإدخال القياسية",
     propertyInspector: "مفتش الخصائص والتحقق",
+
+    // Document Lifecycles
+    statusDraft: "مسودة",
+    statusSubmitted: "مقدم للمراجعة",
+    statusUnderReview: "قيد المراجعة الفنية",
+    statusRevisionRequired: "مطلوب تعديلات",
+    statusApproved: "معتمد رسميًا",
+    statusPublished: "منشور وساري المفعول",
+    statusSuperseded: "ملغى بنسخة أحدث",
+    statusArchived: "مؤرشف نهائيًا",
+
+    // Operational Safety Modules
+    incidentsTitle: "التحقيق في الحوادث والتحليل الجذري 5-Why",
+    capaTitle: "سجل الإجراءات التصحيحية والوقائية (CAPA)",
+    inspectionsTitle: "قوائم التفتيش والتحقق الميداني",
+    auditsTitle: "عمليات التدقيق وحالات عدم المطابقة ISO 45001",
+    trainingTitle: "مصفوفة الكفاءة التدريبية والشهادات المهنية",
+    kpiTitle: "مؤشرات الأداء القيادية والتابعة للسلامة",
+    ptwTitle: "لوحة تصاريح العمل (PTW) الميدانية المباشرة",
+    emergencyPlansTitle: "خطط الاستعداد للطوارئ والإخلاء والاستجابة",
+
+    // Emergency Preparedness Elements
+    musterPoints: "نقاط التجمع والإخلاء في الطوارئ",
+    evacuationDrills: "تمارين وتجارب الإخلاء المجدولة",
+    emergencyContacts: "دليل قيادة الطوارئ والاتصال السريع",
+    fireWardens: "ضباط ومراقبو الإطفاء المعتمدون",
+    firstAiders: "مسؤولو الإسعافات الأولية المرخصون",
+
+    // Organization & RBAC
+    organizationTitle: "الهيكل التنظيمي، الأدوار ومصفوفة الصلاحيات (RBAC)",
+    organizationSubtitle: "إدارة مستخدمي المنشأة، التحكم الدقيق في الصلاحيات حسب الدور، وتراخيص الأصول والمشاريع.",
+    addUser: "+ إضافة مستخدم جديد",
+    roleDirector: "مدير عام السلامة والصحة المهنية",
+    roleAuditor: "مدقق رئيسي ISO 45001",
+    roleEngineer: "مهندس أول سلامة وإدارة مخاطر",
+    roleSupervisor: "مشرف موقع ميداني",
+    roleInspector: "مفتش سلامة ميداني",
+    roleClient: "ممثل العميل المعتمد",
+    badgeId: "رقم البطاقة",
+    emailAddress: "البريد الإلكتروني",
+    authorizedPermissions: "الصلاحيات المعتمدة",
+    securityAuditTrail: "سجل التدقيق الأمني وجلسات الدخول",
+
+    // Validation & Alerts
+    fieldRequired: "هذا الحقل إلزامي.",
+    invalidEmail: "يرجى إدخال بريد إلكتروني صالح.",
+    fileTooLarge: "حجم الملف يتجاوز الحد الأقصى المسموح (10 ميجابايت).",
+    unsupportedFormat: "صيغة الملف غير مدعومة. يرجى استخدام PDF أو DOCX أو XLSX أو PNG أو JPG.",
+    validationPassed: "تم استيفاء جميع شروط التحقق بنجاح.",
+    accessDenied: "تم رفض الوصول. حسابك الحالي لا يمتلك الصلاحية المطلوبة.",
+    actionCompleted: "تم تنفيذ العملية بنجاح وتسجيلها في سجل التدقيق المشفر غير القابل للتعديل."
   }
 };

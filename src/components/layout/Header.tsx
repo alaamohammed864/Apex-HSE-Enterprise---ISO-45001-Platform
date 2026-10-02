@@ -16,6 +16,7 @@ export const Header: React.FC = () => {
     markAlertsAsRead,
     setIsNewRecordModalOpen,
     setIsAuditLedgerOpen,
+    toggleMobileSidebar,
     showToast,
   } = useApp();
 
@@ -31,20 +32,30 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 h-16 bg-[#ffffff]/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-6 flex items-center justify-between border-b border-[#c6c6cd]/30 transition-all ${
-        language === 'ar' ? 'left-0 right-72' : 'left-72 right-0'
+      className={`fixed top-0 h-16 bg-[#ffffff]/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-3 sm:px-6 flex items-center justify-between border-b border-[#c6c6cd]/30 transition-all ${
+        language === 'ar' ? 'left-0 right-0 lg:right-72 lg:left-0' : 'left-0 right-0 lg:left-72 lg:right-0'
       }`}
     >
-      {/* Left Area: Asset & Global Search */}
-      <div className="flex items-center gap-4">
+      {/* Left Area: Mobile Menu + Asset & Global Search */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          onClick={toggleMobileSidebar}
+          className="lg:hidden p-2 rounded-lg text-[#0b1c30] hover:bg-[#eff4ff] border border-[#c6c6cd]/30 flex items-center justify-center transition-colors"
+          aria-label="Toggle navigation menu"
+        >
+          <span className="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+
         {/* Project Asset Chip */}
-        <div className="flex items-center gap-2 bg-[#eff4ff] px-3 py-1.5 rounded-lg border border-[#c6c6cd]/30 hover:bg-[#e5eeff] transition-colors cursor-pointer">
+        <div className="hidden sm:flex items-center gap-2 bg-[#eff4ff] px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#c6c6cd]/30 hover:bg-[#e5eeff] transition-colors cursor-pointer">
           <span className="material-symbols-outlined text-[18px] text-[#45464d]">domain</span>
           <div className="flex flex-col">
             <span className="text-[10px] uppercase text-[#45464d] leading-none font-bold">
               Project Asset
             </span>
-            <span className="text-[13px] font-bold text-[#0b1c30] leading-tight max-w-[210px] truncate">
+            <span className="text-[12px] sm:text-[13px] font-bold text-[#0b1c30] leading-tight max-w-[120px] sm:max-w-[210px] truncate">
               {operatingUnit}
             </span>
           </div>
@@ -52,7 +63,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Global Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="relative w-80 md:w-96">
+        <form onSubmit={handleSearchSubmit} className="relative hidden md:block w-48 sm:w-64 lg:w-80">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#45464d]">
             search
           </span>

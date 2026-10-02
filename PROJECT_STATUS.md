@@ -400,5 +400,93 @@
     - Vector PDF generation tested for HSE Plan, Risk Assessment, Incident Report, Inspection Report, Audit Report, and Monthly Report.
     - Validation of non-empty blobs and `%PDF-` vector magic headers.
 
+## Phase 9 — Document Control, Approval Workflow & Immutable Audit Trail: COMPLETE
+- [x] **8-State Document Lifecycle (ISO 45001:2018 Clause 7.5.3)**:
+  - `DRAFT`: Working initial draft with full dynamic form editing.
+  - `SUBMITTED FOR REVIEW`: Formally submitted into the multi-tier review cycle.
+  - `UNDER REVIEW`: Active cross-discipline review in progress.
+  - `REVISION REQUIRED`: Returned by reviewer/approver with mandatory rejection reason and itemized comments.
+  - `APPROVED`: Fully signed off through all mandatory approval chain steps.
+  - `PUBLISHED`: Formally active and operative across site units with locked WORM immutability.
+  - `SUPERSEDED`: Historic approved version superseded by a newer revision.
+  - `ARCHIVED`: Transferred to permanent hardware/WORM compliance archive.
+- [x] **Configurable Multi-Tier Approval Chains**:
+  - Sequential pipeline flow: `Prepared By` -> `HSE Manager` -> `Project Manager` -> `Client` -> `Approved`.
+  - Configurable step roles, allowed role types, mandatory flags, and rejection rules.
+  - Persistent approval execution logs storing:
+    - User (`decidedByUserName`)
+    - Role (`decidedByUserRole`)
+    - Date (`YYYY-MM-DD`)
+    - Time (`HH:mm:ss`)
+    - Decision (`APPROVED` / `REVISION_REQUIRED` / `REJECTED`)
+    - Comments / Rejection reason
+- [x] **CRITICAL Revision Immutability Engine**:
+  - An approved revision must **NEVER** be overwritten.
+  - Editing an approved/published document automatically spawns the next revision (`Rev 00` -> `Rev 01` -> `Rev 02`) in `DRAFT` status.
+  - The previous approved revision remains 100% untouched and preserved with original content snapshot and SHA-256 checksum.
+  - Previous revision transitions to `SUPERSEDED` upon publication of the new revision.
+  - Full revision history stored in database.
+- [x] **Document Comparison & Diff Engine**:
+  - `DocumentComparisonModal.tsx` provides side-by-side and unified diff views.
+  - Computes metadata deltas (status, author, review dates) and field-level content deltas (added, modified, removed).
+- [x] **Threaded Comments & Rejection Feedback**:
+  - Capture comments and mandatory rejection reasons across all approval steps.
+- [x] **Global Cryptographic Audit Log Subsystem (WORM & Blockchain Chained)**:
+  - Captures all 11 required event types:
+    `Create`, `Edit`, `Delete`, `Approve`, `Reject`, `Publish`, `Archive`, `Download`, `Print`, `Login`, `Permission changes`.
+  - Cryptographic block chaining: `prevHash` -> `dataHash` -> `blockHash` with pure SHA-256 implementation.
+  - Independent tamper detection and cryptographic chain verification algorithm.
+  - Full UI module in `GlobalAuditLogModule.tsx` and modal in `AuditLedgerModal.tsx` with JSON/CSV audit export.
+- [x] **Automated Verification Testing (`scripts/testPhase9DocumentControl.ts`)**:
+  - 64 automated unit and integration tests executed with 100% pass rate:
+    - 8 document lifecycle states and bilingual labels verified.
+    - Approval chain execution from Step 1 to Step 4 with complete metadata persistence.
+    - Immutability engine: approved revision overwrite prevention, automated Rev 01/02 spawning, snapshot preservation.
+    - Side-by-side revision comparison and field addition detection.
+    - Rejection reason enforcement and transition to REVISION_REQUIRED.
+    - All 11 audit action types recorded, verified in ledger, and cryptographically validated across 26 blocks.
+
+## Phase 10 — Finalization, Security, RTL/LTR and Quality Assurance: COMPLETE
+- [x] **Comprehensive Bilingual Localization (English & Arabic)**:
+  - 160 standardized translation keys defined in `src/translations/index.ts` with 100% 1:1 key parity between `en` and `ar`.
+  - Dynamic RTL (Right-to-Left) and LTR (Left-to-Right) layout switching with dynamic `dir` and `lang` DOM bindings.
+  - Complete localization across all elements:
+    - Menus & Navigation groups
+    - Forms & Field Labels
+    - Data Tables & Status indicators
+    - Dialogs & Modals
+    - Reports & Export dossiers
+    - Validation constraints & error messages
+    - Live Notifications & Alert badges
+    - Living Controlled Documents
+  - Pure translation-key architecture without database duplication.
+- [x] **Full-Spectrum Responsive Design (Mobile, Tablet, Laptop, Desktop)**:
+  - Fixed mobile padding collapse in `App.tsx` (`lg:pl-72 pl-0` / `lg:pr-72 pr-0`).
+  - Added mobile hamburger menu toggle button in `Header.tsx` and responsive positioning (`left-0 right-0 lg:left-72 lg:right-0`).
+  - Mobile slide-out drawer navigation with backdrop blur overlay and automatic close on route selection.
+  - Responsive search bar and compact asset indicator for mobile viewports.
+  - Modal dialog responsive bounding (`max-h-[90vh]`, flex layout, internal overflow scrolling).
+  - Responsive table wrappers with horizontal touch scrolling and card fallbacks.
+- [x] **Enterprise Security Subsystem (`src/services/securityService.ts`)**:
+  - Input sanitization against Cross-Site Scripting (XSS), script tags, and malicious event handlers.
+  - Filename sanitization preventing directory traversal attacks (`../`).
+  - Secure file upload validation enforcing MIME type whitelisting, extension filtering, and 10MB size limit.
+  - Role-Based Access Control (RBAC) permission evaluation across 6 roles (`HSE_DIRECTOR`, `LEAD_AUDITOR`, `SAFETY_ENGINEER`, `SITE_SUPERVISOR`, `INSPECTOR`, `CLIENT_REP`).
+  - Automatic event auditing to the immutable WORM cryptographic ledger for all authentication and security actions.
+- [x] **Organization, Roles & Emergency Preparedness Module (`src/components/admin/OrganizationRolesModule.tsx`)**:
+  - Full CRUD user directory with role assignment, status toggling, and instant session switcher.
+  - Interactive RBAC authority matrix for ISO 45001 operational delegations.
+  - Projects and operating site directory for multi-package management.
+  - Emergency response plans (ISO 45001 §8.2) with 4 muster points, emergency contacts directory, and scheduled evacuation drill simulator.
+- [x] **Quality Assurance & Automated Verification Testing (`scripts/testPhase10FinalizationAndQa.ts`)**:
+  - 56 automated unit and integration tests executed with 100% pass rate:
+    - Translation dictionary vocabulary and 1:1 key parity.
+    - XSS input sanitization and directory traversal prevention.
+    - Secure file upload size and extension enforcement.
+    - RBAC permissions validation across roles.
+    - Verification of all 15 operational safety modules (Risk Management, Incidents, CAPA, Inspections, Audits, Training, KPIs, PTW, Reporting, Document Control, Audit Ledger).
+
+
+
 
 

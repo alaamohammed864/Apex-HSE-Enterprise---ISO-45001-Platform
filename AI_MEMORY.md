@@ -146,4 +146,57 @@
 5. **Automated Verification**:
    - Dedicated test suite `scripts/testPhase8ReportingAndPdfs.ts` verified metrics, catalogue, and generated valid `%PDF-` blobs (45 assertions, 0 failures).
 
+## Phase 9: Document Control, Approval Workflow & Immutable Audit Trail — Architectural Decisions
+1. **8-State Document Lifecycle Engine (`src/types/documentControl.ts`, `src/services/documentControlService.ts`)**:
+   - Strict adherence to ISO 45001:2018 Clause 7.5.3.
+   - States: `DRAFT` -> `SUBMITTED_FOR_REVIEW` -> `UNDER_REVIEW` -> `REVISION_REQUIRED` -> `APPROVED` -> `PUBLISHED` -> `SUPERSEDED` -> `ARCHIVED`.
+   - Transitions strictly guard document editing: only DRAFT or REVISION_REQUIRED can have current revision content updated in-place.
+2. **Configurable Multi-Tier Approval Chain**:
+   - Sequential chain pipeline: `Prepared By` -> `HSE Manager` -> `Project Manager` -> `Client` -> `Approved`.
+   - Stores complete decision record for every step: `decidedByUserId`, `decidedByUserName`, `decidedByUserRole`, `date`, `time`, `decision`, `comments`, and mandatory `rejectionReason`.
+3. **CRITICAL Revision Immutability Engine**:
+   - Non-negotiable safety requirement: An approved revision must **NEVER** be overwritten.
+   - When an approved or published document is edited, `editOrCreateDocumentRevision` automatically spawns the next revision (`Rev 00` -> `Rev 01` -> `Rev 02`) in `DRAFT` status.
+   - The predecessor revision remains 100% frozen in WORM storage with original snapshot, SHA-256 hash, and author metadata intact.
+   - Upon publication of the new revision, older revisions automatically transition to `SUPERSEDED`.
+4. **Document Comparison & Diff Engine (`DocumentComparisonModal.tsx`)**:
+   - Side-by-side and unified comparison of two document revisions.
+   - Analyzes metadata deltas (status, author, effective date, review schedule) and content field deltas (added, modified, removed).
+5. **Threaded Comments & Rejection Feedback**:
+   - Integrated threaded comments ledger (`document_comments` IndexedDB store).
+   - Rejection at any approval step mandates a clear reason, transitions workflow to `REJECTED`, and document revision to `REVISION_REQUIRED`.
+6. **Global Cryptographic Audit Log Subsystem (WORM & Blockchain Chained)**:
+   - Full recording of all 11 required enterprise actions:
+     `Create`, `Edit`, `Delete`, `Approve`, `Reject`, `Publish`, `Archive`, `Download`, `Print`, `Login`, `Permission changes`.
+   - Implements cryptographic block chaining: `prevHash` + `dataHash` -> `blockHash` with pure SHA-256.
+   - Audit verification engine (`AuditLogService.verifyAuditChain`) checks sequential block IDs, previous hash linkages, and data integrity with tamper detection.
+   - Dedicated subsystem view (`GlobalAuditLogModule.tsx`) accessible via navigation and modal (`AuditLedgerModal.tsx`) with search, filters, and JSON/CSV export.
+7. **Automated Verification**:
+   - Validated with automated test script `scripts/testPhase9DocumentControl.ts` (64 assertions, 100% pass rate).
+
+## Phase 10: Finalization, Security, RTL/LTR and Quality Assurance — Architectural Decisions
+1. **Comprehensive Dual-Language (EN/AR) & RTL/LTR System**:
+   - 160 typed translation keys in `src/translations/index.ts` covering Menus, Forms, Tables, Dialogs, Reports, Validation, Notifications, and Documents with exact 1:1 key parity.
+   - Dynamic document root binding: `document.documentElement.lang` ('en' | 'ar') and `document.documentElement.dir` ('ltr' | 'rtl').
+   - High-legibility Arabic typography paired via Cairo and IBM Plex Sans fonts without database duplication.
+2. **Responsive Multi-Viewport Architecture**:
+   - Resolved mobile viewport collapse on small devices (< lg) in `App.tsx`, `Header.tsx`, and `Footer.tsx` (using responsive padding `lg:pl-72 pl-0` / `lg:pr-72 pr-0`).
+   - Integrated mobile sidebar drawer with hamburger menu toggle button, backdrop blur overlay, and auto-close on path selection.
+   - Constrained all modal dialogs with max height boundaries (`max-h-[90vh]`), flex headers/footers, and scrollable body containers.
+3. **Security Subsystem & Input/Upload Sanitization (`src/services/securityService.ts`)**:
+   - Input sanitization removing malicious XSS vectors (`<script>`, inline `on*` event handlers, `javascript:` protocols).
+   - Filename sanitization preventing path traversal (`../`) and illegal filesystem characters.
+   - Secure file upload validator enforcing strict MIME type checking, extension whitelisting (`.pdf`, `.docx`, `.xlsx`, `.png`, `.jpg`, `.webp`), and 10MB file size ceiling.
+   - Fine-grained RBAC permission evaluation (`SecurityService.hasPermission`).
+   - Automated cryptographic WORM audit trail triggers on all security and authentication events (`SecurityService.logSecurityEvent`).
+4. **Organization, Roles & Emergency Preparedness Subsystem (`src/components/admin/OrganizationRolesModule.tsx`)**:
+   - Enterprise user management covering 6 distinct operational roles: `HSE_DIRECTOR`, `LEAD_AUDITOR`, `SAFETY_ENGINEER`, `SITE_SUPERVISOR`, `INSPECTOR`, `CLIENT_REP`.
+   - Interactive RBAC authority matrix detailing permissions across document approvals, ALARP sign-offs, PTW issuance, stop-work orders, and audit exports.
+   - Project assets management directory for industrial site facilities.
+   - ISO 45001 §8.2 Emergency Response & Evacuation module: 4 designated muster points, emergency contacts directory, and scheduled evacuation drill simulator with WORM audit logging.
+5. **Quality Assurance & Verification**:
+   - Validated with dedicated automated test suite `scripts/testPhase10FinalizationAndQa.ts` (56 passing assertions, 0 failures) testing translation parity, input sanitization, file upload security, RBAC checks, and cross-module integrity.
+
+
+
 
