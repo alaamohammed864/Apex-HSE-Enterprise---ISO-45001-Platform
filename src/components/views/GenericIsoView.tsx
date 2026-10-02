@@ -7,8 +7,8 @@ export const GenericIsoView: React.FC<{ path: NavigationPath }> = ({ path }) => 
 
   if (path === 'formal-hse-plan-generator') {
     return (
-      <div className="p-6 space-y-6">
-        <div className="bg-white p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold uppercase px-2 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30]">
@@ -67,8 +67,8 @@ export const GenericIsoView: React.FC<{ path: NavigationPath }> = ({ path }) => 
 
   if (path === 'training-competency-matrix') {
     return (
-      <div className="p-6 space-y-6">
-        <div className="bg-white p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold uppercase px-2 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30]">
@@ -141,8 +141,8 @@ export const GenericIsoView: React.FC<{ path: NavigationPath }> = ({ path }) => 
 
   // Fallback rich standard layout for other routes
   return (
-    <div className="p-6 space-y-6">
-      <div className="bg-white p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex items-center justify-between">
+    <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
+      <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex items-center justify-between">
         <div>
           <span className="font-mono text-xs font-bold uppercase px-2 py-0.5 rounded bg-[#dce9ff] text-[#0b1c30]">
             ISO 45001:2018 Management System
