@@ -188,7 +188,7 @@ export const OrganizationRolesModule: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto max-w-full overflow-x-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Top Header Card */}
       <div className="bg-white p-5 rounded-xl border border-[#c6c6cd]/30 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>

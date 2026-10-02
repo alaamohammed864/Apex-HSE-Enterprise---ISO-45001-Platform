@@ -53,7 +53,7 @@ export const AuditLedgerModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#213145]/70 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in">
+    <div className="fixed inset-0 z-50 bg-[#213145]/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in">
       <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-[#c6c6cd]/40 flex flex-col max-h-[85vh]">
         <div className="p-4 bg-[#eff4ff] border-b border-[#c6c6cd]/20 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export const AuditLedgerModal: React.FC = () => {
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto space-y-4 text-xs">
+        <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 text-xs">
           <div className="p-3 rounded-lg bg-[#82f5c1]/30 border border-[#006c4a]/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[#006c4a] text-[20px]">verified</span>

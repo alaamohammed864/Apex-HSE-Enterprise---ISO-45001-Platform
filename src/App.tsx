@@ -88,15 +88,16 @@ const AppContent: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen w-full max-w-full overflow-x-hidden ${
         theme === 'dark' ? 'bg-[#0f172a] text-[#f1f5f9]' : 'bg-[#f8f9ff] text-[#0b1c30]'
       } flex flex-col font-['IBM_Plex_Sans','Cairo',sans-serif]`}
+      dir={language === 'ar' ? 'rtl' : 'ltr'}
     >
       <Sidebar />
       <Header />
 
       <main
-        className={`flex-1 w-full pt-16 pb-12 transition-all ${
+        className={`flex-1 w-full max-w-full overflow-x-hidden pt-16 pb-12 transition-all ${
           language === 'ar' ? 'lg:pr-72 pr-0 pl-0' : 'lg:pl-72 pl-0 pr-0'
         }`}
       >

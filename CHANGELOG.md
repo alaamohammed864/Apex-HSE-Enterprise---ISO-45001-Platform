@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.12.0] - 2026-10-01 — Full Project Audit, Repair & Vercel Deployment Optimization
+### Added
+- **Developer Attribution Placement**:
+  - Embedded "Developed by AENG ALAA MOHAMMED" in primary application footer (`Footer.tsx`) with bilingual localization.
+  - Added dedicated engineering attribution strip in the Executive Safety Command Center (`CommandDashboard.tsx`).
+- **Vercel Deployment Configuration (`vercel.json`)**:
+  - Added clean SPA rewrites routing all wildcard requests to `/index.html` without 404 breaks.
+  - Configured high-performance immutable asset caching headers for `/assets/*`.
+  - Added enterprise security response headers (`X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`).
+- **Responsive Viewport Hardening (320px to 1920px)**:
+  - Applied `w-full max-w-full overflow-x-hidden` on main root wrapper, preventing unwanted page-level horizontal scrollbars.
+  - Compacted header action buttons on mobile screens with responsive labels and icon fallbacks.
+  - Adjusted outer padding to `p-3.5 sm:p-6` across all major views to maximize screen efficiency on smartphones and tablets.
+- **Build & Bundler Modernization**:
+  - Modernized `vite.config.ts` path resolution using ESM-native `fileURLToPath(import.meta.url)` to eliminate build warnings.
+  - Verified 100% case-sensitive path matching on all 280 transformed modules.
+
 ## [1.11.0] - 2026-10-01 — Phase 10: Finalization, Security, RTL/LTR and Quality Assurance
 ### Added
 - **Comprehensive Bilingual Localization & RTL/LTR Synchronization**:

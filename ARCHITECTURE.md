@@ -64,3 +64,13 @@
 - **`src/components/admin/OrganizationRolesModule.tsx`**: Enterprise administration, RBAC authority matrix across 6 roles, user directory, project assets, and ISO 45001 §8.2 emergency evacuation plans & muster points.
 - **Responsive Layout (`App.tsx`, `Header.tsx`, `Sidebar.tsx`, `Footer.tsx`)**: Fluid support for mobile, tablet, laptop, and desktop viewports with responsive padding, slide-out sidebar drawer, and bounded dialogs.
 
+### 6. Vercel Production Deployment Architecture & Attribution
+- **Vercel SPA Routing Configuration (`vercel.json`)**:
+  - Implements SPA wildcard rewrites routing all dynamic paths to `/index.html` preventing 404 errors on direct navigation or page refresh.
+  - Configures immutable caching policy (`max-age=31536000, immutable`) for production static assets (`/assets/*`).
+  - Sets standard HTTP security response headers (`nosniff`, `DENY` frame embedding, XSS protection, and strict referrer policy).
+- **Engineering Attribution**:
+  - **Lead Developer**: **AENG ALAA MOHAMMED**
+  - Developer credit integrated into persistent application shell footer (`Footer.tsx`) and executive dashboard (`CommandDashboard.tsx`).
+
+

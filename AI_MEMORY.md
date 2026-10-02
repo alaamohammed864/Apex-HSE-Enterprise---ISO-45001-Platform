@@ -197,6 +197,20 @@
 5. **Quality Assurance & Verification**:
    - Validated with dedicated automated test suite `scripts/testPhase10FinalizationAndQa.ts` (56 passing assertions, 0 failures) testing translation parity, input sanitization, file upload security, RBAC checks, and cross-module integrity.
 
+## Full Project Audit, Repair & Vercel Deployment — Architectural Decisions
+1. **Responsive Viewport Scaling Architecture**:
+   - Root application container (`src/App.tsx`) enforces strict `w-full max-w-full overflow-x-hidden` while inner main content views handle module-specific layout requirements.
+   - All modules (`CommandDashboard`, `DocumentLibrary`, `DynamicFormBuilder`, `RiskManagementModule`, `IncidentManagementModule`, `CapaManagementModule`, `InspectionsManagementModule`, `AuditsManagementModule`, `PtwManagementModule`, `TrainingManagementModule`, `KpiManagementModule`, `ReportingCenterModule`, `GlobalAuditLogModule`, `OrganizationRolesModule`) use responsive outer padding (`p-3.5 sm:p-6`) and spacing (`space-y-4 sm:space-y-6`).
+   - Tables across all modules are consistently isolated inside `overflow-x-auto w-full` containers to preserve tabular integrity without forcing root horizontal scrolling on mobile viewports.
+2. **Professional Developer Attribution Standard**:
+   - Developer credit for **AENG ALAA MOHAMMED** is integrated cleanly into the main persistent application shell (`src/components/layout/Footer.tsx`) and the Executive Command Dashboard (`src/components/dashboard/CommandDashboard.tsx`).
+   - Integrated with bilingual translation keys (`t.developedBy`), high-legibility font weight, subtle emerald highlight (`#006c4a`), and `flex-wrap` layout behavior.
+3. **Vercel Production Deployment Architecture**:
+   - Configured `/vercel.json` with SPA catch-all rewrites (`/(.*)` -> `/index.html`) guaranteeing smooth browser navigation without 404s on page refresh.
+   - Asset routing for `/assets/(.*)` optimized with 1-year immutable caching (`max-age=31536000, immutable`).
+   - `vite.config.ts` path resolution updated to Node.js ESM-native `fileURLToPath(import.meta.url)` eliminating native config loader deprecation warnings.
+
+
 
 
 

@@ -86,48 +86,49 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Right Area: Action Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
         {/* Bilingual Switcher */}
         <button
           type="button"
           onClick={toggleLanguage}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff4ff] hover:bg-[#e5eeff] text-[#45464d] hover:text-[#0b1c30] text-xs font-bold border border-[#c6c6cd]/30 transition-colors shadow-xs"
+          className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-[#eff4ff] hover:bg-[#e5eeff] text-[#45464d] hover:text-[#0b1c30] text-xs font-bold border border-[#c6c6cd]/30 transition-colors shadow-xs"
           title="Toggle English / Arabic"
         >
-          <span className="material-symbols-outlined text-[18px] text-[#006c4a]">language</span>
-          <span>{t.languageToggle}</span>
+          <span className="material-symbols-outlined text-[17px] text-[#006c4a]">language</span>
+          <span className="text-[11px] font-semibold">{language === 'ar' ? 'EN' : 'عربي'}</span>
         </button>
 
         {/* Theme Switcher */}
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff4ff] hover:bg-[#e5eeff] text-[#45464d] hover:text-[#0b1c30] text-xs font-bold border border-[#c6c6cd]/30 transition-colors shadow-xs"
+          className="hidden xs:flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-[#eff4ff] hover:bg-[#e5eeff] text-[#45464d] hover:text-[#0b1c30] text-xs font-bold border border-[#c6c6cd]/30 transition-colors shadow-xs"
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          <span className="material-symbols-outlined text-[18px] text-[#006c4a]">
+          <span className="material-symbols-outlined text-[17px] text-[#006c4a]">
             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
           </span>
-          <span className="hidden sm:inline">{theme === 'dark' ? 'Day' : 'Night'}</span>
+          <span className="hidden md:inline text-[11px]">{theme === 'dark' ? 'Day' : 'Night'}</span>
         </button>
 
         {/* New Record Button */}
         <button
           type="button"
           onClick={() => setIsNewRecordModalOpen(true)}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#000000] hover:bg-[#213145] text-white text-xs font-semibold shadow-sm transition-colors"
+          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg bg-[#000000] hover:bg-[#213145] text-white text-xs font-semibold shadow-sm transition-colors"
+          title={t.newRecord}
         >
-          <span className="material-symbols-outlined text-[18px]">add_circle</span>
-          <span>{t.newRecord}</span>
+          <span className="material-symbols-outlined text-[17px]">add_circle</span>
+          <span className="hidden sm:inline">{t.newRecord}</span>
         </button>
 
-        <div className="h-6 w-[1px] bg-[#c6c6cd]/40"></div>
+        <div className="hidden sm:block h-6 w-[1px] bg-[#c6c6cd]/40"></div>
 
         {/* Audit Log Quickview */}
         <button
           type="button"
           onClick={() => setIsAuditLedgerOpen(true)}
-          className="p-1.5 rounded-lg text-[#45464d] hover:text-[#0b1c30] hover:bg-[#eff4ff] transition-colors relative"
+          className="hidden sm:flex p-1.5 rounded-lg text-[#45464d] hover:text-[#0b1c30] hover:bg-[#eff4ff] transition-colors relative"
           title="Operational Audit Log Quickview"
         >
           <span className="material-symbols-outlined text-[20px]">history_edu</span>
@@ -155,8 +156,8 @@ export const Header: React.FC = () => {
           {/* Alerts Popover */}
           {isAlertsOpen && (
             <div
-              className={`absolute top-12 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-[#c6c6cd]/40 p-4 z-50 animate-in fade-in slide-in-from-top-2 ${
-                language === 'ar' ? 'left-0' : 'right-0'
+              className={`absolute top-12 w-72 sm:w-80 max-w-[calc(100vw-24px)] bg-white rounded-xl shadow-2xl border border-[#c6c6cd]/40 p-4 z-50 animate-in fade-in slide-in-from-top-2 ${
+                language === 'ar' ? 'left-0 sm:-left-20' : 'right-0 sm:-right-20'
               }`}
             >
               <div className="flex items-center justify-between pb-2 border-b border-[#c6c6cd]/30 mb-3">
@@ -208,18 +209,18 @@ export const Header: React.FC = () => {
         {/* User Identity Pill with Switcher */}
         <div
           onClick={() => setIsUserMenuOpen(true)}
-          className="flex items-center gap-2 pl-2 cursor-pointer hover:opacity-85 transition-opacity"
+          className="flex items-center gap-2 pl-1 cursor-pointer hover:opacity-85 transition-opacity"
           title="Click to Switch User / Role (RBAC)"
         >
-          <div className="flex flex-col text-right">
-            <span className="text-xs font-bold text-[#0b1c30] leading-tight">
+          <div className="hidden md:flex flex-col text-right">
+            <span className="text-xs font-bold text-[#0b1c30] leading-tight truncate max-w-[120px]">
               {language === 'ar' ? currentUser.nameAr : currentUser.name}
             </span>
-            <span className="font-mono text-[10px] text-[#006c4a] font-semibold leading-none">
+            <span className="font-mono text-[10px] text-[#006c4a] font-semibold leading-none truncate max-w-[120px]">
               {language === 'ar' ? currentUser.roleTitleAr : currentUser.roleTitleEn}
             </span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-[#131b2e] text-white flex items-center justify-center font-bold text-xs shadow-inner">
+          <div className="w-8 h-8 rounded-full bg-[#131b2e] text-white flex items-center justify-center font-bold text-xs shadow-inner flex-shrink-0">
             <span className="material-symbols-outlined text-[18px]">manage_accounts</span>
           </div>
         </div>

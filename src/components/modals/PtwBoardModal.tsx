@@ -7,7 +7,7 @@ export const PtwBoardModal: React.FC = () => {
   if (!isPtwBoardOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#213145]/70 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in">
+    <div className="fixed inset-0 z-50 bg-[#213145]/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in">
       <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden border border-[#c6c6cd]/40 flex flex-col max-h-[85vh]">
         <div className="p-4 bg-[#eff4ff] border-b border-[#c6c6cd]/20 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -38,7 +38,7 @@ export const PtwBoardModal: React.FC = () => {
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto space-y-4 text-xs">
+        <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 text-xs">
           {/* Quick Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-lg bg-[#eff4ff] border border-[#c6c6cd]/30 text-center">

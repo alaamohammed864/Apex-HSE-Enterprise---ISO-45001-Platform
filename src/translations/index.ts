@@ -70,6 +70,7 @@ export const translations = {
     footerWorm: "Immutable WORM Audit Ledger: Enforced",
     footerLocation: "Location: Ras Laffan Industrial City, QA",
     footerCopyright: "© 2026 Apex HSE Global Systems",
+    developedBy: "Developed by",
 
     // Dashboard
     liveTelemetry: "Live Telemetry Feed",
@@ -257,6 +258,7 @@ export const translations = {
     footerWorm: "سجل WORM غير القابل للتعديل: مُفعّل ومُحكم",
     footerLocation: "الموقع: مدينة راس لفان الصناعية، قطر",
     footerCopyright: "© 2026 نظم أبيكس العالمية للسلامة والبيئة",
+    developedBy: "تطوير بواسطة",
 
     // Dashboard
     liveTelemetry: "بث المراقبة اللحظية المباشرة",

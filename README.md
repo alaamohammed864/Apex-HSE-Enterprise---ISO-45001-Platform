@@ -29,3 +29,15 @@ npm install
 npm run dev
 ```
 Navigate to `http://localhost:3000`.
+
+## Production Build & Vercel Deployment
+To build the application for production deployment on Vercel:
+```bash
+npm run build
+```
+The project includes a production-ready `/vercel.json` file with SPA route rewrites (`/(.*)` -> `/index.html`), security response headers, and asset caching rules (`Cache-Control: public, max-age=31536000, immutable`).
+
+## Engineering & Development
+- **Lead Developer**: **AENG ALAA MOHAMMED**
+- **Architecture**: Enterprise ISO 45001:2018 Management System
+

@@ -163,7 +163,7 @@ export const DocumentLibrary: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
         {/* Header & Action Zone */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div className="space-y-1 max-w-3xl">

@@ -420,7 +420,7 @@ export const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* Top Header Bar */}
-      <header className="w-full bg-white px-6 py-4 shadow-sm border-b border-[#c6c6cd]/30 sticky top-16 z-20">
+      <header className="w-full bg-white px-3.5 sm:px-6 py-3 sm:py-4 shadow-sm border-b border-[#c6c6cd]/30 sticky top-16 z-20">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#0b1c30] text-white flex items-center justify-center shadow-md">
@@ -522,7 +522,7 @@ export const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
       </header>
 
       {/* Main Body */}
-      <div className="p-6 flex-1 w-full max-w-7xl mx-auto space-y-6">
+      <div className="p-3.5 sm:p-6 flex-1 w-full max-w-7xl mx-auto space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
         {/* VIEW 1: TEMPLATES LIST */}
         {viewMode === 'TEMPLATES_LIST' && (
           <div className="space-y-5">

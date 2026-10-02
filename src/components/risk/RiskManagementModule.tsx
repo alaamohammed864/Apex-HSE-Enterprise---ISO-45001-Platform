@@ -269,9 +269,9 @@ export const RiskManagementModule: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1700px] mx-auto">
+    <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-[1700px] mx-auto max-w-full overflow-x-hidden">
       {/* Module Title & Executive Header */}
-      <div className="bg-[#121c2c] border border-[#23354c] rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#121c2c] border border-[#23354c] rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">

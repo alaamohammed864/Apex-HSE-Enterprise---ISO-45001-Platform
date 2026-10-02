@@ -56,7 +56,7 @@ export const CommandDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
       {/* Executive Overview Banner */}
       <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-[#c6c6cd]/30">
         <div className="absolute right-0 top-0 w-96 h-full bg-gradient-to-l from-[#dce9ff]/40 via-[#eff4ff]/20 to-transparent pointer-events-none"></div>
@@ -1315,6 +1315,21 @@ export const CommandDashboard: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Main Dashboard Engineering Attribution Strip */}
+      <div className="rounded-lg bg-white/60 border border-[#c6c6cd]/30 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#45464d] font-mono shadow-2xs">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="w-2 h-2 rounded-full bg-[#006c4a]"></span>
+          <span className="text-[#0b1c30] font-semibold">Apex HSE Enterprise Architecture</span>
+          <span className="text-[#c6c6cd]">|</span>
+          <span>ISO 45001:2018 Certified</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-xs text-[#45464d]">
+          <span className="material-symbols-outlined text-[15px] text-[#006c4a]">engineering</span>
+          <span>{t.developedBy || 'Developed by'}</span>
+          <span className="font-semibold text-[#0b1c30] tracking-wide">AENG ALAA MOHAMMED</span>
         </div>
       </div>
     </div>

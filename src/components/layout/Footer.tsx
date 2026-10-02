@@ -35,6 +35,11 @@ export const Footer: React.FC = () => {
         <span>{t.footerLocation}</span>
         <span className="text-[#c6c6cd] text-xs">|</span>
         <span>{t.footerCopyright}</span>
+        <span className="text-[#c6c6cd] text-xs">|</span>
+        <span className="inline-flex items-center gap-1 text-[#006c4a]">
+          <span className="text-[#45464d]">{t.developedBy || 'Developed by'}</span>
+          <strong className="text-[#0b1c30] font-semibold tracking-wide">AENG ALAA MOHAMMED</strong>
+        </span>
       </div>
     </footer>
   );
