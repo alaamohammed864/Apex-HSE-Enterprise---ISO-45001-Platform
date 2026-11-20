@@ -54,7 +54,7 @@ export const HSE_MANUAL_TEMPLATE: DynamicDocumentTemplateConfig = {
           labelAr: 'نائب الرئيس التنفيذي المسؤول عن السلامة',
           fieldType: 'EMPLOYEE',
           isRequired: true,
-          defaultValue: 'Dr. Tariq Al-Hashimi',
+          defaultValue: 'Eng. Alaa Mohammed',
           order: 1,
           sectionId: 'sec-mnl-02-leadership',
           visibility: 'VISIBLE',

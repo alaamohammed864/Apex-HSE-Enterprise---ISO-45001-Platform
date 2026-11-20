@@ -437,7 +437,7 @@ export const SEED_RISK_ASSESSMENTS: RiskAssessmentRecord[] = [
     discipline: 'HEAVY_LIFTING',
     disciplineLabel: 'Heavy Lifting & Rigging',
     zone: 'Zone 1 Marine Pier Berth #2',
-    reviewerName: 'Dr. Tariq Al-Hashimi',
+    reviewerName: 'Eng. Alaa Mohammed',
     reviewerRole: 'Corporate HSE Director',
     signoffDate: '2026-03-24',
     createdAt: '2026-03-01T00:00:00Z',
@@ -537,7 +537,7 @@ export const SEED_RISK_ASSESSMENTS: RiskAssessmentRecord[] = [
     discipline: 'PIPING',
     disciplineLabel: 'Piping & Mechanical',
     zone: 'Flare Header Unit Battery Limit',
-    reviewerName: 'Dr. Tariq Al-Hashimi',
+    reviewerName: 'Eng. Alaa Mohammed',
     reviewerRole: 'Corporate HSE Director',
     signoffDate: '2026-03-26',
     createdAt: '2026-03-10T00:00:00Z',
@@ -603,7 +603,7 @@ export const SEED_RISK_ASSESSMENTS: RiskAssessmentRecord[] = [
     initialRiskScore: 12,
     initialRiskTier: 'HIGH',
     additionalControls: 'Radiation Protection Officer (RPO) continuous supervision, 50m calculated perimeter, digital Geiger counter alarms, physical source guide tube lock.',
-    responsiblePerson: 'Dr. Tariq Al-Hashimi (RPO Lead)',
+    responsiblePerson: 'Eng. Alaa Mohammed (RPO Lead)',
     targetDate: '2026-04-28',
     residualLikelihood: 1,
     residualSeverity: 3,
@@ -629,7 +629,7 @@ export const SEED_RISK_ASSESSMENTS: RiskAssessmentRecord[] = [
     discipline: 'RADIOGRAPHY',
     disciplineLabel: 'NDT & Inspection',
     zone: 'Subsea Spool Tie-In Trench',
-    reviewerName: 'Dr. Tariq Al-Hashimi',
+    reviewerName: 'Eng. Alaa Mohammed',
     reviewerRole: 'Corporate HSE Director',
     signoffDate: '2026-03-20',
     createdAt: '2026-03-18T00:00:00Z',
@@ -676,6 +676,22 @@ class RiskService {
       if (!existingRAs || existingRAs.length === 0) {
         for (const ra of SEED_RISK_ASSESSMENTS) {
           await indexedDbService.put('risk_assessments', ra);
+        }
+      } else {
+        for (const ra of existingRAs) {
+          const needsReviewerUpdate = ra.reviewerName?.includes('Dr. Tariq Al-Hashimi');
+          const needsResponsibleUpdate = ra.responsiblePerson?.includes('Dr. Tariq Al-Hashimi');
+          if (needsReviewerUpdate || needsResponsibleUpdate) {
+            await indexedDbService.put('risk_assessments', {
+              ...ra,
+              reviewerName: needsReviewerUpdate
+                ? ra.reviewerName!.replace(/Dr\. Tariq Al-Hashimi/g, 'Eng. Alaa Mohammed')
+                : ra.reviewerName,
+              responsiblePerson: needsResponsibleUpdate
+                ? ra.responsiblePerson.replace(/Dr\. Tariq Al-Hashimi/g, 'Eng. Alaa Mohammed')
+                : ra.responsiblePerson,
+            });
+          }
         }
       }
 

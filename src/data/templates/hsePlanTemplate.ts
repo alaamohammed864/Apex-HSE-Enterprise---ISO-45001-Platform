@@ -267,7 +267,7 @@ export const HSE_PLAN_SECTIONS: FormSectionConfig[] = [
         labelAr: 'مدير السلامة المقيم في المشروع',
         fieldType: 'EMPLOYEE',
         isRequired: true,
-        defaultValue: 'Dr. Tariq Al-Hashimi',
+        defaultValue: 'Eng. Alaa Mohammed',
         order: 2,
         sectionId: 'sec-pln-08-roles-resp',
         visibility: 'VISIBLE',

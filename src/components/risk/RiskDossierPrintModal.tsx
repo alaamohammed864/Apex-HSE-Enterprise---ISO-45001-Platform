@@ -216,7 +216,7 @@ export const RiskDossierPrintModal: React.FC<RiskDossierPrintModalProps> = ({
             </div>
             <div>
               <div className="font-bold">Approved & Endorsed:</div>
-              <div className="mt-8 border-b border-black pb-1">Dr. Tariq Al-Hashimi</div>
+              <div className="mt-8 border-b border-black pb-1">Eng. Alaa Mohammed</div>
               <div className="text-[10px] text-gray-500">Corporate HSE Director (Sign-off)</div>
             </div>
           </div>

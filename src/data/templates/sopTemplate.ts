@@ -416,7 +416,7 @@ export const SOP_SECTIONS: FormSectionConfig[] = [
         labelAr: 'المسؤول الفني المخول بالاعتماد',
         fieldType: 'EMPLOYEE',
         isRequired: true,
-        defaultValue: 'Dr. Tariq Al-Hashimi',
+        defaultValue: 'Eng. Alaa Mohammed',
         order: 1,
         sectionId: 'sec-sop-17-approval',
         visibility: 'VISIBLE',

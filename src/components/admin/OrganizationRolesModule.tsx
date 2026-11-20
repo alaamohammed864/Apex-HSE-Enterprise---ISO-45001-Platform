@@ -487,7 +487,7 @@ export const OrganizationRolesModule: React.FC = () => {
               nameAr: 'توسعة راس لفان الصناعية حزمة EPC-4',
               headcount: '1,420 workers',
               hoursWithoutLti: '2,840,000 hrs',
-              manager: 'Dr. Tariq Al-Hashimi',
+              manager: 'Eng. Alaa Mohammed',
               status: 'OPERATIONAL',
               isoRating: 'Class A (Zero Non-Conformances)',
             },

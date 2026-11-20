@@ -27,9 +27,9 @@ export interface User {
 export const INITIAL_USERS: User[] = [
   {
     id: 'usr-001',
-    name: 'Dr. Tariq Al-Hashimi',
-    nameAr: 'د. طارق الهاشمي',
-    email: 'tariq.hashimi@ccc-jv.qa',
+    name: 'Eng. Alaa Mohammed',
+    nameAr: 'م. علاء محمد',
+    email: 'alaa.mohammed@ccc-jv.qa',
     role: 'HSE_DIRECTOR',
     roleTitleEn: 'Corporate HSE Director',
     roleTitleAr: 'مدير عام السلامة والصحة المهنية',
@@ -125,7 +125,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((u: User) =>
+            u.id === 'usr-001' || u.name === 'Dr. Tariq Al-Hashimi'
+              ? {
+                  ...u,
+                  name: 'Eng. Alaa Mohammed',
+                  nameAr: 'م. علاء محمد',
+                  email: u.email === 'tariq.hashimi@ccc-jv.qa' ? 'alaa.mohammed@ccc-jv.qa' : u.email,
+                }
+              : u
+          );
+        }
       } catch {
         // fallback
       }
